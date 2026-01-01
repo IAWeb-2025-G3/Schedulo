@@ -1,0 +1,67 @@
+{
+  "name": "schedulo",
+  "private": true,
+  "scripts": {
+    "dx:next": "next dev",
+    "dx": "run-p dx:* --print-label",
+    "dev": "pnpm dx:next",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint --cache src",
+    "lint-fix": "pnpm lint --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm prettier:check && pnpm lint && pnpm typecheck",
+    "prettier:check": "prettier --check \"**/*.{ts,tsx}\"",
+    "prettier:write": "prettier --write \"**/*.{ts,tsx}\""
+  },
+  "prettier": {
+    "printWidth": 80,
+    "trailingComma": "all",
+    "singleQuote": true
+  },
+  "dependencies": {
+    "@mantine/core": "^8.3.10",
+    "@mantine/dates": "^8.3.10",
+    "@mantine/form": "^8.3.10",
+    "@mantine/hooks": "^8.3.10",
+    "@mantine/modals": "^8.3.10",
+    "@mantine/notifications": "^8.3.10",
+    "@mantine/nprogress": "^8.3.10",
+    "@tabler/icons-react": "^3.36.0",
+    "@tanstack/react-query": "^5.80.3",
+    "@trpc/client": "npm:@trpc/client",
+    "@trpc/next": "npm:@trpc/next",
+    "@trpc/react-query": "npm:@trpc/react-query",
+    "@trpc/server": "npm:@trpc/server",
+    "clsx": "^2.0.0",
+    "dayjs": "^1.11.19",
+    "next": "^15.3.8",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "superjson": "^1.12.4",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "@types/react": "^19.1.0",
+    "autoprefixer": "^10.4.7",
+    "dotenv": "^16.0.1",
+    "eslint": "^9.26.0",
+    "eslint-config-next": "^15.3.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "6.0.0-rc.1",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.5.6",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1",
+    "prettier": "^3.3.3",
+    "tailwindcss": "^3.4.6",
+    "tsx": "^4.19.3",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.31.1"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "version": "11.8.1"
+}
