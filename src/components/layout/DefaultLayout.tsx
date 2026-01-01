@@ -16,7 +16,9 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         </div>
       </AppShell.Header>
 
-      <AppShell.Main>{children}</AppShell.Main>
+      <AppShell.Main>
+        <div className="flex w-full justify-center">{children}</div>
+      </AppShell.Main>
     </AppShell>
   );
 };
