@@ -1,6 +1,7 @@
 {
   "name": "schedulo",
   "private": true,
+  "packageManager": "pnpm@8.15.9",
   "scripts": {
     "dx:next": "next dev",
     "dx": "run-p dx:* --print-label",
