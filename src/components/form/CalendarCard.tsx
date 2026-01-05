@@ -1,65 +1,80 @@
 import { Card, Title, Space, Text, Button, ActionIcon } from '@mantine/core';
 import { Calendar, TimePicker } from '@mantine/dates';
 import { UseFormReturnType } from '@mantine/form';
-import { Poll } from '~/pages';
+import { Poll } from '~/pages/poll';
 import dayjs from 'dayjs';
 import { IconPlus, IconX } from '@tabler/icons-react';
-
 type Props = {
   form: UseFormReturnType<Poll, (values: Poll) => Poll>;
 };
 
 export const CalendarCard = ({ form }: Props) => {
-  const datesRecord = form.values.dates;
+  const dates = form.values.dates;
   const handleSelect = (date: string) => {
     const key = dayjs(date).format('YYYY-MM-DD');
-    const isSelected = Object.prototype.hasOwnProperty.call(datesRecord, key);
+    const isSelected = dates.some((d) => d.date === key);
 
     if (isSelected) {
       form.setFieldValue('dates', (current) => {
-        const next = { ...current };
-        delete next[key];
+        const next = [...current];
+        const index = next.findIndex((d) => d.date === key);
+        if (index !== -1) {
+          next.splice(index, 1);
+        }
         return next;
       });
       return;
     }
 
-    if (Object.keys(datesRecord).length >= 3) return;
-
-    form.setFieldValue('dates', (current) => ({
+    if (dates.length >= 3) return;
+    form.setFieldValue('dates', (current) => [
       ...current,
-      [key]: current[key] ?? [],
-    }));
+      {
+        id: crypto.randomUUID(),
+        date: key,
+        startTime: '00:00',
+        endTime: '24:00',
+      },
+    ]);
   };
 
   const handleAddTime = (key: string, startTime: string, endTime: string) => {
     // example: add a default 1-hour slot; adjust as you like
-    form.setFieldValue('dates', (current) => ({
+    form.setFieldValue('dates', (current) => [
       ...current,
-      [key]: [
-        ...(current[key] ?? []),
-        { startTime: startTime, endTime: endTime },
-      ],
-    }));
+      {
+        id: crypto.randomUUID(),
+        date: key,
+        startTime,
+        endTime,
+      },
+    ]);
   };
 
   const handleDeleteTime = (dateKey: string, index: number) => {
     form.setFieldValue('dates', (current) => {
-      const next = { ...current };
-      next[dateKey] = next[dateKey].filter((_, i) => i !== index);
+      const next = [...current];
+      const slotIndex = next.findIndex(
+        (slot, i) => slot.date === dateKey && i === index,
+      );
+      if (slotIndex !== -1) {
+        next.splice(slotIndex, 1);
+      }
       return next;
     });
   };
 
-  const handleChangeTime = (dateKey: string, index: number) => {
+  const handleChangeTime = (id: string) => {
     return (time: string, type: 'startTime' | 'endTime') => {
       form.setFieldValue('dates', (current) => {
-        const next = { ...current };
-        const slot = next[dateKey][index];
-        next[dateKey][index] = {
-          ...slot,
-          [type]: time,
-        };
+        const next = [...current];
+        const slot = next.find((slot) => slot.id === id);
+        if (slot) {
+          next[next.indexOf(slot)] = {
+            ...slot,
+            [type]: time,
+          };
+        }
         return next;
       });
     };
@@ -80,50 +95,67 @@ export const CalendarCard = ({ form }: Props) => {
             getDayProps={(date) => {
               const key = dayjs(date).format('YYYY-MM-DD');
               return {
-                selected: Object.prototype.hasOwnProperty.call(
-                  datesRecord,
-                  key,
-                ),
+                selected: dates.some((d) => d.date === key),
                 onClick: () => handleSelect(date),
               };
             }}
           />
 
           <div className="flex flex-col gap-2">
-            {Object.entries(form.values.dates)
-              .sort(([a], [b]) => dayjs(a).valueOf() - dayjs(b).valueOf())
-              .map(([dateKey, timeSlots]) => (
+            {form.values.dates
+              .sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf())
+              .reduce(
+                (acc, slot) => {
+                  const dateKey = slot.date;
+                  let group = acc.find((g) => g.date === dateKey);
+                  if (!group) {
+                    group = { date: dateKey, slots: [] };
+                    acc.push(group);
+                  }
+                  group.slots.push(slot);
+                  return acc;
+                },
+                [] as {
+                  date: string;
+                  slots: (typeof form.values.dates)[0][];
+                }[],
+              )
+              .map((timeSlots) => (
                 <Card
                   withBorder
-                  key={dateKey}
+                  key={timeSlots.date}
                   className="flex gap-2 items-start flex-nowrap !flex-row !p-3"
                 >
                   <Card
                     withBorder
                     className="flex flex-col items-center !py-0 !px-2"
                   >
-                    <Text>{dayjs(dateKey).format('MMM')}</Text>
-                    <Title order={3}>{dayjs(dateKey).format('DD')}</Title>
+                    <Text>{dayjs(timeSlots.date).format('MMM')}</Text>
+                    <Title order={3}>
+                      {dayjs(timeSlots.date).format('DD')}
+                    </Title>
                   </Card>
                   <div className="flex flex-col gap-2">
-                    {timeSlots.map((slot, index) => (
+                    {timeSlots.slots.map((slot, index) => (
                       <div className="flex gap-2 items-center" key={index}>
                         <TimePicker
                           value={slot.startTime}
                           onChange={(time) =>
-                            handleChangeTime(dateKey, index)(time, 'startTime')
+                            handleChangeTime(slot.id)(time, 'startTime')
                           }
                         />
                         <TimePicker
                           value={slot.endTime}
                           onChange={(time) =>
-                            handleChangeTime(dateKey, index)(time, 'endTime')
+                            handleChangeTime(slot.id)(time, 'endTime')
                           }
                         />
                         <ActionIcon
                           size="input-sm"
                           variant="subtle"
-                          onClick={() => handleDeleteTime(dateKey, index)}
+                          onClick={() =>
+                            handleDeleteTime(timeSlots.date, index)
+                          }
                         >
                           <IconX size={16} />
                         </ActionIcon>
@@ -134,7 +166,9 @@ export const CalendarCard = ({ form }: Props) => {
                       <Button
                         leftSection={<IconPlus size={16} />}
                         variant="outline"
-                        onClick={() => handleAddTime(dateKey, '00:00', '24:00')}
+                        onClick={() =>
+                          handleAddTime(timeSlots.date, '00:00', '24:00')
+                        }
                       >
                         Add Time
                       </Button>
