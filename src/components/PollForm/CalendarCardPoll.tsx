@@ -1,14 +1,14 @@
 import { Card, Title, Space, Text, Button, ActionIcon } from '@mantine/core';
 import { Calendar, TimePicker } from '@mantine/dates';
 import { UseFormReturnType } from '@mantine/form';
-import { Poll } from '~/pages/poll';
+import { Poll } from '~/pages';
 import dayjs from 'dayjs';
 import { IconPlus, IconX } from '@tabler/icons-react';
 type Props = {
   form: UseFormReturnType<Poll, (values: Poll) => Poll>;
 };
 
-export const CalendarCard = ({ form }: Props) => {
+export const CalendarCardPoll = ({ form }: Props) => {
   const dates = form.values.dates;
   const handleSelect = (date: string) => {
     const key = dayjs(date).format('YYYY-MM-DD');

@@ -1,12 +1,12 @@
 import { Card, Title, Space, TextInput, Textarea, Text } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import { Poll } from '~/pages/poll';
+import { Poll } from '~/pages';
 
 type Props = {
   form: UseFormReturnType<Poll, (values: Poll) => Poll>;
 };
 
-export const EventCard = ({ form }: Props) => {
+export const EventCardPoll = ({ form }: Props) => {
   return (
     <Card withBorder>
       <div className="flex flex-col">

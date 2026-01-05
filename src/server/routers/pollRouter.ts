@@ -1,8 +1,9 @@
 import { publicProcedure, router } from '~/server/trpc';
 import { promises as fs } from 'fs';
-import { Poll, ZodPoll } from '~/pages/poll';
+import { Poll, ZodPoll } from '~/pages';
 import path from 'path';
 import crypto from 'crypto';
+import z from 'zod';
 
 const DATA_DIR = process.env.DATA_DIR ?? path.join(process.cwd(), 'data');
 const POLLS_DIR = path.join(DATA_DIR, 'polls');
@@ -34,4 +35,12 @@ export const pollRouter = router({
     }
     return polls;
   }),
+  fetchPoll: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      await ensureDir();
+      const content = await fs.readFile(pollPath(input.id), 'utf8');
+      const poll = ZodPoll.parse(JSON.parse(content));
+      return poll;
+    }),
 });
