@@ -6,6 +6,8 @@ import { Button } from '@mantine/core';
 import z from 'zod';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
+import { modals } from '@mantine/modals';
+import { PollModal } from '~/components/PollForm/PollModal';
 
 export const ZodTimeSlot = {
   id: z.string(),
@@ -47,13 +49,13 @@ const Page: NextPageWithLayout = () => {
   });
 
   const storePoll = trpc.poll.storePoll.useMutation({
-    onSuccess: () => {
-      notifications.show({
-        title: 'Success',
-        message: 'Poll saved successfully',
-        color: 'green',
+    onSuccess: (data) => {
+      modals.open({
+        modalId: 'poll-created',
+        title: 'Poll Successfully Created',
+        children: <PollModal pollId={data} clearForm={form.reset} />,
+        centered: true,
       });
-      form.reset();
     },
     onError: (error) => {
       notifications.show({

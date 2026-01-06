@@ -12,7 +12,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
           <ThemeIcon variant="transparent">
             <IconCalendarEvent />
           </ThemeIcon>
-          <Title>Poll</Title>
+          <Title>Schedulo</Title>
         </div>
       </AppShell.Header>
 

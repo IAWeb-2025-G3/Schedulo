@@ -21,6 +21,7 @@ export const pollRouter = router({
     const tmp = `${pollPath(pollId)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
     await fs.writeFile(tmp, JSON.stringify(full, null, 2), 'utf8');
     await fs.rename(tmp, pollPath(pollId));
+    return pollId;
   }),
   fetchPolls: publicProcedure.query(async () => {
     await ensureDir();
