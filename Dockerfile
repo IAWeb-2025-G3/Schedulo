@@ -27,5 +27,10 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
+ENV DATA_DIR=/data
+RUN mkdir -p /data/polls
+
+VOLUME ["/data"]
+
 EXPOSE 3000
 CMD ["node", "server.js", "-H", "0.0.0.0", "-p", "3000"]

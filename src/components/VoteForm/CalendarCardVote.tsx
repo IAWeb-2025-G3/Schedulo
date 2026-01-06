@@ -15,6 +15,7 @@ import { IconCheck, IconQuestionMark, IconX } from '@tabler/icons-react';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 type Props = {
   data: Poll;
 };
@@ -37,6 +38,7 @@ export const CalendarCardVote = ({ data }: Props) => {
   });
 
   const [name, setName] = useState('');
+  const router = useRouter();
 
   const handleConfirmation = (id: string) => {
     form.setFieldValue('votes', (current) => {
@@ -119,16 +121,25 @@ export const CalendarCardVote = ({ data }: Props) => {
     },
   });
 
-  const handleSubmit = (values: Poll) => {
-    storeVotes.mutate({
+  const handleSubmit = async (values: Poll) => {
+    const payload: Poll = {
       ...values,
       votes: form.values.votes?.map((vote) => ({ ...vote, name })),
-    });
+    };
+
+    try {
+      await storeVotes.mutateAsync(payload);
+      await router.push(`/poll/${data.id}/results`);
+    } catch {
+    }
   };
+
 
   return (
     <form
-      onSubmit={form.onSubmit((values) => handleSubmit(values))}
+      onSubmit={form.onSubmit(async (values) => {
+        await handleSubmit(values);
+      })}
       className="flex flex-col gap-4"
     >
       <Card withBorder>
@@ -239,7 +250,11 @@ export const CalendarCardVote = ({ data }: Props) => {
           </div>
         </Card.Section>
       </Card>
-      <Button type="submit" disabled={name.trim() === ''}>
+      <Button
+        type="submit"
+        disabled={name.trim() === '' || storeVotes.isLoading}
+        loading={storeVotes.isLoading}
+      >
         Submit
       </Button>
     </form>
