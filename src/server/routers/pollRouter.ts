@@ -34,7 +34,7 @@ export const pollRouter = router({
     const existingPoll = ZodPoll.parse(JSON.parse(existingContent));
     const updatedPoll: Poll = {
       ...existingPoll,
-      votes: input.votes,
+      votes: [...(input.votes ?? []), ...(existingPoll.votes ?? [])],
     };
     const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
     await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');
