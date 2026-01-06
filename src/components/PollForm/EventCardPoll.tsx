@@ -1,4 +1,4 @@
-import { Card, Title, Space, TextInput, Textarea, Text } from '@mantine/core';
+import { Card, Title, TextInput, Textarea, Text } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import { Poll } from '~/pages';
 
@@ -13,7 +13,6 @@ export const EventCardPoll = ({ form }: Props) => {
         <Title order={3}>Event</Title>
         <Text>Describe what your event is about</Text>
       </div>
-      <Space h="md" />
       <Card.Section>
         <div className="flex flex-col gap-2 p-4">
           <TextInput

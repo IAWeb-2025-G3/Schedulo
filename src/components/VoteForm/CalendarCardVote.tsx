@@ -1,9 +1,20 @@
-import { Card, Title, Space, Text, Button, ActionIcon } from '@mantine/core';
-import { Calendar, TimePicker } from '@mantine/dates';
+import {
+  Card,
+  Title,
+  Space,
+  Text,
+  ActionIcon,
+  Button,
+  TextInput,
+} from '@mantine/core';
+import { Calendar } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { Poll } from '~/pages';
+import { Poll, VoteValue } from '~/pages';
 import dayjs from 'dayjs';
-import { IconPlus, IconX } from '@tabler/icons-react';
+import { IconCheck, IconQuestionMark, IconX } from '@tabler/icons-react';
+import { trpc } from '~/utils/trpc';
+import { notifications } from '@mantine/notifications';
+import { useState } from 'react';
 type Props = {
   data: Poll;
 };
@@ -11,182 +22,226 @@ type Props = {
 export const CalendarCardVote = ({ data }: Props) => {
   const form = useForm<Poll>({
     initialValues: {
+      id: data.id,
       title: data.title,
       location: data.location || '',
       description: data.description || '',
       dates: data.dates,
+      votes: data.dates.map((slot) => ({
+        pollId: data.id!,
+        name: '',
+        timeSlotId: slot.id,
+        value: 'ifNeedBe',
+      })),
     },
   });
-  const dates = data.dates;
-  const handleSelect = (date: string) => {
-    const key = dayjs(date).format('YYYY-MM-DD');
-    const isSelected = dates.some((d) => d.date === key);
 
-    if (isSelected) {
-      form.setFieldValue('dates', (current) => {
-        const next = [...current];
-        const index = next.findIndex((d) => d.date === key);
-        if (index !== -1) {
-          next.splice(index, 1);
-        }
-        return next;
-      });
-      return;
-    }
+  const [name, setName] = useState('');
 
-    if (dates.length >= 3) return;
-    form.setFieldValue('dates', (current) => [
-      ...current,
-      {
-        id: crypto.randomUUID(),
-        date: key,
-        startTime: '00:00',
-        endTime: '24:00',
-      },
-    ]);
+  const handleConfirmation = (id: string) => {
+    form.setFieldValue('votes', (current) => {
+      const next = [...current!];
+      const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
+      if (voteIndex === -1) {
+        next.push({ pollId: data.id!, name: '', timeSlotId: id, value: 'yes' });
+      } else {
+        next[voteIndex] = {
+          pollId: data.id!,
+          name: '',
+          timeSlotId: id,
+          value: 'yes',
+        };
+      }
+      return next;
+    });
   };
-
-  const handleAddTime = (key: string, startTime: string, endTime: string) => {
-    // example: add a default 1-hour slot; adjust as you like
-    form.setFieldValue('dates', (current) => [
-      ...current,
-      {
-        id: crypto.randomUUID(),
-        date: key,
-        startTime,
-        endTime,
-      },
-    ]);
-  };
-
-  const handleDeleteTime = (dateKey: string, index: number) => {
-    form.setFieldValue('dates', (current) => {
-      const next = [...current];
-      const slotIndex = next.findIndex(
-        (slot, i) => slot.date === dateKey && i === index,
-      );
-      if (slotIndex !== -1) {
-        next.splice(slotIndex, 1);
+  const handleRejection = (id: string) => {
+    form.setFieldValue('votes', (current) => {
+      const next = [...current!];
+      const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
+      if (voteIndex === -1) {
+        next.push({ pollId: data.id!, name: '', timeSlotId: id, value: 'no' });
+      } else {
+        next[voteIndex] = {
+          pollId: data.id!,
+          name: '',
+          timeSlotId: id,
+          value: 'no',
+        };
       }
       return next;
     });
   };
 
-  const handleChangeTime = (id: string) => {
-    return (time: string, type: 'startTime' | 'endTime') => {
-      form.setFieldValue('dates', (current) => {
-        const next = [...current];
-        const slot = next.find((slot) => slot.id === id);
-        if (slot) {
-          next[next.indexOf(slot)] = {
-            ...slot,
-            [type]: time,
-          };
-        }
-        return next;
+  const handleUndecided = (id: string) => {
+    form.setFieldValue('votes', (current) => {
+      const next = [...current!];
+      const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
+      if (voteIndex === -1) {
+        next.push({
+          pollId: data.id!,
+          name: '',
+          timeSlotId: id,
+          value: 'ifNeedBe',
+        });
+      } else {
+        next[voteIndex] = {
+          pollId: data.id!,
+          name: '',
+          timeSlotId: id,
+          value: 'ifNeedBe',
+        };
+      }
+      return next;
+    });
+  };
+
+  const handleButtonStyle = (slotId: string, value: VoteValue) => {
+    return form.values.votes?.find((vote) => vote.timeSlotId === slotId)
+      ?.value === value
+      ? 'filled'
+      : 'subtle';
+  };
+  const storeVotes = trpc.poll.storeVotes.useMutation({
+    onSuccess: () => {
+      notifications.show({
+        title: 'Success',
+        message: `Votes submitted successfully!`,
+        color: 'green',
       });
-    };
+    },
+    onError: (error) => {
+      notifications.show({
+        title: 'Error',
+        message: `Failed to submit votes: ${error.message}`,
+        color: 'red',
+      });
+    },
+  });
+
+  const handleSubmit = (values: Poll) => {
+    storeVotes.mutate({
+      ...values,
+      votes: form.values.votes?.map((vote) => ({ ...vote, name })),
+    });
   };
 
   return (
-    <Card withBorder>
-      <div className="flex flex-col">
-        <Title order={3}>Calendar</Title>
-        <Text>Select potential dates or times for your event</Text>
-      </div>
+    <form
+      onSubmit={form.onSubmit((values) => handleSubmit(values))}
+      className="flex flex-col gap-4"
+    >
+      <Card withBorder>
+        <TextInput
+          label="Name"
+          value={name}
+          onChange={(event) => setName(event.currentTarget.value)}
+        />
+      </Card>
+      <Card withBorder>
+        <div className="flex flex-col">
+          <Title order={3}>Calendar</Title>
+          <Text>Vote for available timeslots for this event</Text>
+        </div>
 
-      <Space h="md" />
+        <Space h="md" />
 
-      <Card.Section>
-        <div className="flex gap-2 p-4 justify-center">
-          <Calendar
-            getDayProps={(date) => {
-              const key = dayjs(date).format('YYYY-MM-DD');
-              return {
-                selected: dates.some((d) => d.date === key),
-                onClick: () => handleSelect(date),
-              };
-            }}
-          />
+        <Card.Section>
+          <div className="flex gap-2 p-4 justify-center">
+            <Calendar
+              getDayProps={(date) => {
+                const dateString = dayjs(date).format('YYYY-MM-DD');
+                return {
+                  selected: data.dates.some((d) => d.date === dateString),
+                  // onClick: () => handleSelect(date),
+                };
+              }}
+            />
 
-          <div className="flex flex-col gap-2">
-            {form.values.dates
-              .sort((a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf())
-              .reduce(
-                (acc, slot) => {
-                  const dateKey = slot.date;
-                  let group = acc.find((g) => g.date === dateKey);
-                  if (!group) {
-                    group = { date: dateKey, slots: [] };
-                    acc.push(group);
-                  }
-                  group.slots.push(slot);
-                  return acc;
-                },
-                [] as {
-                  date: string;
-                  slots: (typeof form.values.dates)[0][];
-                }[],
-              )
-              .map((timeSlots) => (
-                <Card
-                  withBorder
-                  key={timeSlots.date}
-                  className="flex gap-2 items-start flex-nowrap !flex-row !p-3"
-                >
+            <div className="flex flex-col gap-2">
+              {form.values.dates
+                .sort(
+                  (a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf(),
+                )
+                .reduce(
+                  (acc, slot) => {
+                    const dateKey = slot.date;
+                    let group = acc.find((g) => g.date === dateKey);
+                    if (!group) {
+                      group = { date: dateKey, slots: [] };
+                      acc.push(group);
+                    }
+                    group.slots.push(slot);
+                    return acc;
+                  },
+                  [] as {
+                    date: string;
+                    slots: (typeof form.values.dates)[0][];
+                  }[],
+                )
+                .map((timeSlots) => (
                   <Card
                     withBorder
-                    className="flex flex-col items-center !py-0 !px-2"
+                    key={timeSlots.date}
+                    className="flex gap-2 items-start flex-nowrap !flex-row !p-3"
                   >
-                    <Text>{dayjs(timeSlots.date).format('MMM')}</Text>
-                    <Title order={3}>
-                      {dayjs(timeSlots.date).format('DD')}
-                    </Title>
-                  </Card>
-                  <div className="flex flex-col gap-2">
-                    {timeSlots.slots.map((slot, index) => (
-                      <div className="flex gap-2 items-center" key={index}>
-                        <TimePicker
-                          value={slot.startTime}
-                          onChange={(time) =>
-                            handleChangeTime(slot.id)(time, 'startTime')
-                          }
-                        />
-                        <TimePicker
-                          value={slot.endTime}
-                          onChange={(time) =>
-                            handleChangeTime(slot.id)(time, 'endTime')
-                          }
-                        />
-                        <ActionIcon
-                          size="input-sm"
-                          variant="subtle"
-                          onClick={() =>
-                            handleDeleteTime(timeSlots.date, index)
-                          }
-                        >
-                          <IconX size={16} />
-                        </ActionIcon>
-                      </div>
-                    ))}
-
-                    <div>
-                      <Button
-                        leftSection={<IconPlus size={16} />}
-                        variant="outline"
-                        onClick={() =>
-                          handleAddTime(timeSlots.date, '00:00', '24:00')
-                        }
-                      >
-                        Add Time
-                      </Button>
+                    <Card
+                      withBorder
+                      className="flex flex-col items-center !py-0 !px-2"
+                    >
+                      <Text>{dayjs(timeSlots.date).format('MMM')}</Text>
+                      <Title order={3}>
+                        {dayjs(timeSlots.date).format('DD')}
+                      </Title>
+                    </Card>
+                    <div className="flex flex-col gap-2">
+                      {timeSlots.slots.map((slot, index) => (
+                        <div className="flex gap-2 items-center" key={index}>
+                          <Card withBorder className="!py-1">
+                            <Text>{slot.startTime}</Text>
+                          </Card>
+                          -
+                          <Card withBorder className="!py-1">
+                            <Text>{slot.endTime}</Text>
+                          </Card>
+                          <div className="flex gap-1 items-center">
+                            <ActionIcon
+                              size="input-xs"
+                              variant={handleButtonStyle(slot.id, 'yes')}
+                              color="green"
+                              onClick={() => handleConfirmation(slot.id)}
+                            >
+                              <IconCheck size={16} />
+                            </ActionIcon>
+                            <ActionIcon
+                              size="input-xs"
+                              variant={handleButtonStyle(slot.id, 'no')}
+                              color="red"
+                              onClick={() => handleRejection(slot.id)}
+                            >
+                              <IconX size={16} />
+                            </ActionIcon>
+                            <ActionIcon
+                              size="input-xs"
+                              variant={handleButtonStyle(slot.id, 'ifNeedBe')}
+                              color="yellow"
+                              onClick={() => handleUndecided(slot.id)}
+                            >
+                              <IconQuestionMark size={16} />
+                            </ActionIcon>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
+            </div>
           </div>
-        </div>
-      </Card.Section>
-    </Card>
+        </Card.Section>
+      </Card>
+      <Button type="submit" disabled={name.trim() === ''}>
+        Submit
+      </Button>
+    </form>
   );
 };

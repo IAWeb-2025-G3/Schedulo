@@ -19,6 +19,8 @@ export const ZodTimeSlot = {
 export type TimeSlot = z.infer<typeof ZodTimeSlot>;
 
 export const ZodVoteValue = z.enum(['yes', 'no', 'ifNeedBe']);
+
+export type VoteValue = z.infer<typeof ZodVoteValue>;
 export const ZodVote = z.object({
   pollId: z.string(),
   name: z.string().min(1).max(60),

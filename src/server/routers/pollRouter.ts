@@ -23,6 +23,24 @@ export const pollRouter = router({
     await fs.rename(tmp, pollPath(pollId));
     return pollId;
   }),
+  storeVotes: publicProcedure.input(ZodPoll).mutation(async ({ input }) => {
+    console.log('Input', input);
+    await ensureDir();
+    if (!input.id) {
+      throw new Error('Poll ID is required to store votes');
+    }
+    const existingContent = await fs.readFile(pollPath(input.id), 'utf8');
+    console.log('Existing Content:', existingContent);
+    const existingPoll = ZodPoll.parse(JSON.parse(existingContent));
+    const updatedPoll: Poll = {
+      ...existingPoll,
+      votes: input.votes,
+    };
+    const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
+    await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');
+    await fs.rename(tmp, pollPath(input.id));
+    return input.id;
+  }),
   fetchPolls: publicProcedure.query(async () => {
     await ensureDir();
     const files = await fs.readdir(POLLS_DIR);

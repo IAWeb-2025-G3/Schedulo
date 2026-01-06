@@ -11,7 +11,7 @@ const Page: NextPageWithLayout = () => {
   });
 
   return (
-    <div className="flex flex-col py-8 w-fit min-w-96 gap-4">
+    <div className="flex flex-col py-8 w-fit gap-4 min-w-96">
       {fetchPoll.data && <EventCardVote data={fetchPoll.data} />}
       {fetchPoll.data && <CalendarCardVote data={fetchPoll.data} />}
     </div>
