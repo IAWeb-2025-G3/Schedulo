@@ -51,12 +51,10 @@ export const CalendarCardPoll = ({ form }: Props) => {
     ]);
   };
 
-  const handleDeleteTime = (dateKey: string, index: number) => {
+  const handleDeleteTime = (id: string) => {
     form.setFieldValue('dates', (current) => {
       const next = [...current];
-      const slotIndex = next.findIndex(
-        (slot, i) => slot.date === dateKey && i === index,
-      );
+      const slotIndex = next.findIndex((slot) => slot.id === id);
       if (slotIndex !== -1) {
         next.splice(slotIndex, 1);
       }
@@ -153,9 +151,7 @@ export const CalendarCardPoll = ({ form }: Props) => {
                         <ActionIcon
                           size="input-sm"
                           variant="subtle"
-                          onClick={() =>
-                            handleDeleteTime(timeSlots.date, index)
-                          }
+                          onClick={() => handleDeleteTime(slot.id)}
                         >
                           <IconX size={16} />
                         </ActionIcon>
