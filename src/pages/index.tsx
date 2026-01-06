@@ -75,7 +75,7 @@ const Page: NextPageWithLayout = () => {
   return (
     <form
       onSubmit={form.onSubmit((values) => handleSubmit(values))}
-      className="flex flex-col py-8 w-fit gap-4 min-w-96"
+      className="flex flex-col py-8 w-fit gap-4"
     >
       <EventCardPoll form={form} />
       <CalendarCardPoll form={form} />
