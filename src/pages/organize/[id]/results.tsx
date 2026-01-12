@@ -54,7 +54,7 @@ function VoteBadge({ value }: { value: VoteValue }) {
         variant="light"
         leftSection={<IconQuestionMark size={14} />}
       >
-        Maybe
+        If Need Be
       </Badge>
     );
   }
@@ -315,7 +315,7 @@ export default function PollResultsPage() {
                       variant="filled"
                       leftSection={<IconQuestionMark size={16} />}
                     >
-                      {winner.stats.ifneedbe} Maybe
+                      {winner.stats.ifneedbe} If Need Be
                     </Badge>
                     {winner.stats.no > 0 && (
                       <Badge
@@ -396,7 +396,7 @@ export default function PollResultsPage() {
                         Yes: {r.yes}
                       </Badge>
                       <Badge color="yellow" variant="light">
-                        Maybe: {r.ifneedbe}
+                        If Need Be: {r.ifneedbe}
                       </Badge>
                       <Badge color="red" variant="light">
                         No: {r.no}
@@ -431,7 +431,7 @@ export default function PollResultsPage() {
                             {bestLabel === 'yes'
                               ? 'Yes'
                               : bestLabel === 'ifneedbe'
-                                ? 'Maybe'
+                                ? 'If Need Be'
                                 : 'No'}
                           </Text>
                         </Text>
