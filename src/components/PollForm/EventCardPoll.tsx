@@ -1,6 +1,6 @@
 import { Card, Title, TextInput, Textarea, Text } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import { Poll } from '~/pages';
+import { Poll } from '~/pages/organize';
 
 type Props = {
   form: UseFormReturnType<Poll, (values: Poll) => Poll>;

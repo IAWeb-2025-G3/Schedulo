@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { NextPageWithLayout } from './_app';
+import type { NextPageWithLayout } from '../_app';
 import {
   Card,
   Title,
@@ -29,7 +29,8 @@ const Page: NextPageWithLayout = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const utils = trpc.useUtils();
-  const { data: organizers, isLoading } = trpc.organizer.fetchOrganizers.useQuery();
+  const { data: organizers, isLoading } =
+    trpc.organizer.fetchOrganizers.useQuery();
 
   const form = useForm<OrganizerFormData>({
     initialValues: {
@@ -38,7 +39,7 @@ const Page: NextPageWithLayout = () => {
     },
     validate: {
       username: (value) => (value.length < 1 ? 'Username is required' : null),
-      password: (value, values) => {
+      password: (value) => {
         // Password is only required when creating, not when editing
         if (!editingId && value.length < 1) {
           return 'Password is required';
@@ -113,7 +114,11 @@ const Page: NextPageWithLayout = () => {
     setOpened(true);
   };
 
-  const handleOpenEdit = (organizer: { id: string; username: string; password: string }) => {
+  const handleOpenEdit = (organizer: {
+    id: string;
+    username: string;
+    password: string;
+  }) => {
     form.setValues({
       id: organizer.id,
       username: organizer.username,
@@ -147,7 +152,8 @@ const Page: NextPageWithLayout = () => {
       title: 'Delete Organizer',
       children: (
         <Text size="sm">
-          Are you sure you want to delete organizer <strong>{username}</strong>? This action cannot be undone.
+          Are you sure you want to delete organizer <strong>{username}</strong>?
+          This action cannot be undone.
         </Text>
       ),
       labels: { confirm: 'Delete', cancel: 'Cancel' },
@@ -231,7 +237,9 @@ const Page: NextPageWithLayout = () => {
                         <ActionIcon
                           variant="subtle"
                           color="red"
-                          onClick={() => handleDelete(organizer.id!, organizer.username)}
+                          onClick={() =>
+                            handleDelete(organizer.id!, organizer.username)
+                          }
                         >
                           <IconTrash size={18} />
                         </ActionIcon>
@@ -270,7 +278,11 @@ const Page: NextPageWithLayout = () => {
             <TextInput
               label="Password"
               type="password"
-              placeholder={editingId ? 'Leave empty to keep current password' : 'Enter password'}
+              placeholder={
+                editingId
+                  ? 'Leave empty to keep current password'
+                  : 'Enter password'
+              }
               required={!editingId}
               {...form.getInputProps('password')}
             />
@@ -300,4 +312,3 @@ const Page: NextPageWithLayout = () => {
 };
 
 export default Page;
-

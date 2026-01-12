@@ -1,6 +1,6 @@
 import { publicProcedure, router } from '~/server/trpc';
 import { promises as fs } from 'fs';
-import { Poll, ZodPoll } from '~/pages';
+import { Poll, ZodPoll } from '~/pages/organize';
 import path from 'path';
 import crypto from 'crypto';
 import z from 'zod';

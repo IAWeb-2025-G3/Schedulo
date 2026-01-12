@@ -1,5 +1,5 @@
 import { CalendarCardPoll } from '~/components/PollForm/CalendarCardPoll';
-import type { NextPageWithLayout } from './_app';
+import type { NextPageWithLayout } from '../_app';
 import { EventCardPoll } from '~/components/PollForm/EventCardPoll';
 import { useForm } from '@mantine/form';
 import { Button } from '@mantine/core';
