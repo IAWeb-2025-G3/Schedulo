@@ -10,8 +10,9 @@ import {
   TextInput,
   PasswordInput,
 } from '@mantine/core';
+import { NextPageWithLayout } from '~/pages/_app';
 
-export default function OrganizerLoginPage() {
+const Page: NextPageWithLayout = () => {
   const router = useRouter();
   const { next = '/organizer' } = router.query;
 
@@ -83,4 +84,6 @@ export default function OrganizerLoginPage() {
       </Paper>
     </Container>
   );
-}
+};
+
+export default Page;

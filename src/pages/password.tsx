@@ -9,8 +9,9 @@ import {
   Stack,
   Container,
 } from '@mantine/core';
+import { NextPageWithLayout } from '~/pages/_app';
 
-export default function PasswordPage() {
+const Page: NextPageWithLayout = () => {
   const router = useRouter();
   const { next = '/' } = router.query;
 
@@ -77,4 +78,5 @@ export default function PasswordPage() {
       </Paper>
     </Container>
   );
-}
+};
+export default Page;
