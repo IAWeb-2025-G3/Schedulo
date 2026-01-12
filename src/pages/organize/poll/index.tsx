@@ -8,6 +8,7 @@ import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
 import { PollModal } from '~/components/PollForm/PollModal';
+import { IconSend } from '@tabler/icons-react';
 
 export const ZodTimeSlot = {
   id: z.string(),
@@ -81,9 +82,17 @@ const Page: NextPageWithLayout = () => {
       onSubmit={form.onSubmit((values) => handleSubmit(values))}
       className="flex flex-col py-8 w-fit gap-4"
     >
-      <EventCardPoll form={form} />
-      <CalendarCardPoll form={form} />
-      <Button type="submit">Submit</Button>
+      <div className="flex gap-4">
+        <EventCardPoll form={form} />
+        <CalendarCardPoll form={form} />
+      </div>
+      <Button
+        type="submit"
+        leftSection={<IconSend size={16} />}
+        loading={storePoll.isPending}
+      >
+        Submit
+      </Button>
     </form>
   );
 };

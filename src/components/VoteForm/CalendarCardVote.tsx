@@ -6,6 +6,8 @@ import {
   ActionIcon,
   Button,
   TextInput,
+  Tooltip,
+  TooltipProps,
 } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -18,6 +20,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 type Props = {
   data: Poll;
+};
+
+const tooltipProps: TooltipProps = {
+  label: '',
+  openDelay: 250,
 };
 
 export const CalendarCardVote = ({ data }: Props) => {
@@ -216,30 +223,44 @@ export const CalendarCardVote = ({ data }: Props) => {
                             <Text>{slot.endTime}</Text>
                           </Card>
                           <div className="flex gap-1 items-center">
-                            <ActionIcon
-                              size="input-xs"
-                              variant={handleButtonStyle(slot.id, 'yes')}
+                            <Tooltip
+                              {...tooltipProps}
+                              label="Yes"
                               color="green"
-                              onClick={() => handleConfirmation(slot.id)}
                             >
-                              <IconCheck size={16} />
-                            </ActionIcon>
-                            <ActionIcon
-                              size="input-xs"
-                              variant={handleButtonStyle(slot.id, 'no')}
-                              color="red"
-                              onClick={() => handleRejection(slot.id)}
-                            >
-                              <IconX size={16} />
-                            </ActionIcon>
-                            <ActionIcon
-                              size="input-xs"
-                              variant={handleButtonStyle(slot.id, 'ifNeedBe')}
+                              <ActionIcon
+                                size="input-xs"
+                                variant={handleButtonStyle(slot.id, 'yes')}
+                                color="green"
+                                onClick={() => handleConfirmation(slot.id)}
+                              >
+                                <IconCheck size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                            <Tooltip {...tooltipProps} label="No" color="red">
+                              <ActionIcon
+                                size="input-xs"
+                                variant={handleButtonStyle(slot.id, 'no')}
+                                color="red"
+                                onClick={() => handleRejection(slot.id)}
+                              >
+                                <IconX size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                            <Tooltip
+                              {...tooltipProps}
+                              label="If Need Be"
                               color="yellow"
-                              onClick={() => handleUndecided(slot.id)}
                             >
-                              <IconQuestionMark size={16} />
-                            </ActionIcon>
+                              <ActionIcon
+                                size="input-xs"
+                                variant={handleButtonStyle(slot.id, 'ifNeedBe')}
+                                color="yellow"
+                                onClick={() => handleUndecided(slot.id)}
+                              >
+                                <IconQuestionMark size={16} />
+                              </ActionIcon>
+                            </Tooltip>
                           </div>
                         </div>
                       ))}
