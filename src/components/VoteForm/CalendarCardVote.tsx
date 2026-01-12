@@ -13,18 +13,24 @@ import { Calendar } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { Poll, VoteValue } from '~/pages/organize/poll';
 import dayjs from 'dayjs';
-import { IconCheck, IconQuestionMark, IconX } from '@tabler/icons-react';
+import {
+  IconArrowBack,
+  IconCheck,
+  IconQuestionMark,
+  IconX,
+} from '@tabler/icons-react';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { modals } from '@mantine/modals';
 type Props = {
   data: Poll;
 };
 
 const tooltipProps: TooltipProps = {
   label: '',
-  openDelay: 250,
+  openDelay: 500,
 };
 
 export const CalendarCardVote = ({ data }: Props) => {
@@ -138,7 +144,30 @@ export const CalendarCardVote = ({ data }: Props) => {
 
     try {
       await storeVotes.mutateAsync(payload);
-      await router.push(`/poll/${data.id}/results`);
+      modals.open({
+        title: 'Votes Submitted',
+        children: (
+          <div className="flex flex-col gap-4">
+            <Text>
+              Thank you, <strong>{name}</strong>, for submitting your votes! You
+              will be informed once the organizer finalizes the event details.
+            </Text>
+            <Button
+              onClick={() => {
+                modals.closeAll();
+                router.push('/');
+              }}
+              leftSection={<IconArrowBack size={18} />}
+            >
+              Close
+            </Button>
+          </div>
+        ),
+        centered: true,
+        closeOnClickOutside: false,
+        closeOnEscape: false,
+        withCloseButton: false,
+      });
     } catch {}
   };
 
@@ -151,6 +180,7 @@ export const CalendarCardVote = ({ data }: Props) => {
     >
       <Card withBorder>
         <TextInput
+          required
           label="Name"
           value={name}
           onChange={(event) => setName(event.currentTarget.value)}
@@ -271,13 +301,21 @@ export const CalendarCardVote = ({ data }: Props) => {
           </div>
         </Card.Section>
       </Card>
-      <Button
-        type="submit"
-        disabled={name.trim() === '' || storeVotes.isPending}
-        loading={storeVotes.isPending}
+      <Tooltip
+        color="yellow"
+        disabled={name.trim() !== ''}
+        label={<Text>Please enter your name!</Text>}
+        openDelay={500}
+        withArrow
       >
-        Submit
-      </Button>
+        <Button
+          type="submit"
+          disabled={name.trim() === '' || storeVotes.isPending}
+          loading={storeVotes.isPending}
+        >
+          Submit
+        </Button>
+      </Tooltip>
     </form>
   );
 };

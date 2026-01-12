@@ -35,7 +35,7 @@ export const PollModal = ({ pollId, clearForm }: Props) => {
       </Text>
       <div className="flex gap-2">
         <CopyButton
-          value={`${window.location.origin}/poll/${pollId}`}
+          value={`${window.location.origin}/vote/${pollId}`}
           timeout={2000}
         >
           {({ copied, copy }) => (
