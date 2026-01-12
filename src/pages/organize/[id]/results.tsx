@@ -25,7 +25,7 @@ import {
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 
-type VoteValue = 'yes' | 'no' | 'ifneedbe' | string;
+type VoteValue = 'yes' | 'no' | 'ifneedbe';
 
 function formatDate(dateString: string) {
   return dayjs(dateString).format('MMM DD, YYYY');
@@ -112,8 +112,8 @@ export default function PollResultsPage() {
     );
   }
 
-  const dates: Array<any> = Array.isArray(poll.dates) ? poll.dates : [];
-  const votes: Array<any> = Array.isArray(poll.votes) ? poll.votes : [];
+  const dates = Array.isArray(poll.dates) ? poll.dates : [];
+  const votes = Array.isArray(poll.votes) ? poll.votes : [];
 
   const slotById = new Map<string, any>();
   for (const s of dates) {
@@ -150,7 +150,7 @@ export default function PollResultsPage() {
     if (!slotId) continue;
 
     const name = String(v?.name ?? 'Anonymous');
-    const value: VoteValue = String(v?.value ?? '').toLowerCase();
+    const value: VoteValue = String(v?.value ?? '').toLowerCase() as VoteValue;
 
     const slotRes = ensureSlot(slotId);
 
