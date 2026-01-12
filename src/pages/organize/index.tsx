@@ -9,8 +9,8 @@ import {
   Loader,
   Center,
   Alert,
-  ThemeIcon,
   Button,
+  ActionIcon,
 } from '@mantine/core';
 import {
   IconAlertCircle,
@@ -78,15 +78,12 @@ const Page: NextPageWithLayout = () => {
               withBorder
               radius="md"
               p="md"
-              component={Link as any}
-              href={`/organize/${poll.id}/results`}
               style={{
                 textDecoration: 'none',
                 color: 'inherit',
-                cursor: 'pointer',
               }}
             >
-              <Group justify="space-between" align="flex-start" wrap="nowrap">
+              <div className="flex justify-between flex-nowrap items-center">
                 <div style={{ minWidth: 0 }}>
                   <Text fw={600} lineClamp={1}>
                     {poll.title}
@@ -103,10 +100,17 @@ const Page: NextPageWithLayout = () => {
                   )}
                 </div>
 
-                <ThemeIcon variant="light" radius="xl" size="lg">
+                <ActionIcon
+                  title="View Poll Results"
+                  variant="light"
+                  radius="xl"
+                  size="lg"
+                  component={Link as any}
+                  href={`/organize/${poll.id}/results`}
+                >
                   <IconChevronRight size={18} />
-                </ThemeIcon>
-              </Group>
+                </ActionIcon>
+              </div>
             </Paper>
           ))}
       </Stack>

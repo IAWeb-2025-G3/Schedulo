@@ -17,6 +17,7 @@ import {
   IconArrowBack,
   IconCheck,
   IconQuestionMark,
+  IconSend,
   IconX,
 } from '@tabler/icons-react';
 import { trpc } from '~/utils/trpc';
@@ -309,6 +310,7 @@ export const CalendarCardVote = ({ data }: Props) => {
         withArrow
       >
         <Button
+          leftSection={<IconSend size={16} />}
           type="submit"
           disabled={name.trim() === '' || storeVotes.isPending}
           loading={storeVotes.isPending}
