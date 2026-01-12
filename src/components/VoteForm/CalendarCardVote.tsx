@@ -9,7 +9,7 @@ import {
 } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { Poll, VoteValue } from '~/pages/organize';
+import { Poll, VoteValue } from '~/pages/organize/poll';
 import dayjs from 'dayjs';
 import { IconCheck, IconQuestionMark, IconX } from '@tabler/icons-react';
 import { trpc } from '~/utils/trpc';

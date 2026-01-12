@@ -43,7 +43,7 @@ export default async function handler(
       const organizer = JSON.parse(content);
       if (organizer.username === username) {
         if (timingSafeEqual(organizer.password, password)) {
-          const token = sign(username);
+          const token = sign(organizer.id);
           res.setHeader(
             'Set-Cookie',
             `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax; ${

@@ -1,86 +1,116 @@
-import { CalendarCardPoll } from '~/components/PollForm/CalendarCardPoll';
-import type { NextPageWithLayout } from '../_app';
-import { EventCardPoll } from '~/components/PollForm/EventCardPoll';
-import { useForm } from '@mantine/form';
-import { Button } from '@mantine/core';
-import z from 'zod';
+import Link from 'next/link';
+import {
+  Container,
+  Title,
+  Text,
+  Paper,
+  Group,
+  Stack,
+  Loader,
+  Center,
+  Alert,
+  ThemeIcon,
+  Button,
+} from '@mantine/core';
+import {
+  IconAlertCircle,
+  IconChevronRight,
+  IconPlus,
+} from '@tabler/icons-react';
 import { trpc } from '~/utils/trpc';
-import { notifications } from '@mantine/notifications';
-import { modals } from '@mantine/modals';
-import { PollModal } from '~/components/PollForm/PollModal';
-
-export const ZodTimeSlot = {
-  id: z.string(),
-  date: z.string(),
-  startTime: z.string(),
-  endTime: z.string(),
-};
-
-export type TimeSlot = z.infer<typeof ZodTimeSlot>;
-
-export const ZodVoteValue = z.enum(['yes', 'no', 'ifNeedBe']);
-
-export type VoteValue = z.infer<typeof ZodVoteValue>;
-export const ZodVote = z.object({
-  pollId: z.string(),
-  name: z.string().min(1).max(60),
-  timeSlotId: z.string(),
-  value: ZodVoteValue,
-});
-export const ZodPoll = z.object({
-  id: z.string().optional(),
-  title: z.string().min(1, 'Title is required'),
-  location: z.string().optional(),
-  description: z.string().optional(),
-  dates: z.array(z.object(ZodTimeSlot)),
-  votes: z.array(ZodVote).optional(),
-});
-export type Poll = z.infer<typeof ZodPoll>;
-
-export type ZodVote = z.infer<typeof ZodVote>;
+import { NextPageWithLayout } from '~/pages/_app';
 
 const Page: NextPageWithLayout = () => {
-  const form = useForm<Poll>({
-    initialValues: {
-      title: '',
-      location: '',
-      description: '',
-      dates: [],
-      votes: undefined,
-    },
-  });
-
-  const storePoll = trpc.poll.storePoll.useMutation({
-    onSuccess: (data) => {
-      modals.open({
-        modalId: 'poll-created',
-        title: 'Poll Successfully Created',
-        children: <PollModal pollId={data} clearForm={form.reset} />,
-        centered: true,
-      });
-    },
-    onError: (error) => {
-      notifications.show({
-        title: 'Error',
-        message: `Failed to save poll: ${error.message}`,
-        color: 'red',
-      });
-    },
-  });
-
-  const handleSubmit = (values: Poll) => {
-    storePoll.mutate(values);
-  };
+  const pollsQuery = trpc.poll.fetchPolls.useQuery();
 
   return (
-    <form
-      onSubmit={form.onSubmit((values) => handleSubmit(values))}
-      className="flex flex-col py-8 w-fit gap-4"
-    >
-      <EventCardPoll form={form} />
-      <CalendarCardPoll form={form} />
-      <Button type="submit">Submit</Button>
-    </form>
+    <Container size="sm" py="xl">
+      <Stack gap="md">
+        <Group justify="space-between" align="center">
+          <div>
+            <Title order={2}>Polls</Title>
+            <Text c="dimmed" size="sm">
+              Select a poll to view details.
+            </Text>
+          </div>
+
+          <Button
+            component={Link}
+            href="/organize/poll"
+            leftSection={<IconPlus size={16} />}
+          >
+            Create poll
+          </Button>
+        </Group>
+
+        {pollsQuery.isLoading && (
+          <Center py="xl">
+            <Loader />
+          </Center>
+        )}
+
+        {pollsQuery.isError && (
+          <Alert
+            icon={<IconAlertCircle size={16} />}
+            title="Could not load polls"
+            color="red"
+          >
+            {pollsQuery.error.message}
+          </Alert>
+        )}
+
+        {!pollsQuery.isLoading &&
+          !pollsQuery.isError &&
+          pollsQuery.data?.length === 0 && (
+            <Paper withBorder p="lg" radius="md">
+              <Text fw={500}>No polls found</Text>
+              <Text c="dimmed" size="sm">
+                Create a poll to see it listed here.
+              </Text>
+            </Paper>
+          )}
+
+        {!pollsQuery.isLoading &&
+          !pollsQuery.isError &&
+          pollsQuery.data?.map((poll) => (
+            <Paper
+              key={poll.id}
+              withBorder
+              radius="md"
+              p="md"
+              component={Link as any}
+              href={`/poll/${poll.id}/results`}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                cursor: 'pointer',
+              }}
+            >
+              <Group justify="space-between" align="flex-start" wrap="nowrap">
+                <div style={{ minWidth: 0 }}>
+                  <Text fw={600} lineClamp={1}>
+                    {poll.title}
+                  </Text>
+
+                  <Text c="dimmed" size="xs" mt={2}>
+                    Created {poll.createdAt.toLocaleDateString()}
+                  </Text>
+
+                  {(poll.location || poll.description) && (
+                    <Text c="dimmed" size="sm" lineClamp={2} mt={6}>
+                      {poll.location ?? poll.description}
+                    </Text>
+                  )}
+                </div>
+
+                <ThemeIcon variant="light" radius="xl" size="lg">
+                  <IconChevronRight size={18} />
+                </ThemeIcon>
+              </Group>
+            </Paper>
+          ))}
+      </Stack>
+    </Container>
   );
 };
 
