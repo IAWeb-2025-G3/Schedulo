@@ -15,6 +15,7 @@ import {
   ScrollArea,
   Paper,
   Divider,
+  ActionIcon,
 } from '@mantine/core';
 import {
   IconCheck,
@@ -22,8 +23,10 @@ import {
   IconQuestionMark,
   IconAlertCircle,
   IconTrophy,
+  IconArrowLeft,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
+import { NextPageWithLayout } from '~/pages/_app';
 
 type VoteValue = 'yes' | 'no' | 'ifneedbe';
 
@@ -61,7 +64,7 @@ function VoteBadge({ value }: { value: VoteValue }) {
   return <Text c="dimmed">—</Text>;
 }
 
-export default function PollResultsPage() {
+const Page: NextPageWithLayout = () => {
   const router = useRouter();
   const id = router.query.id as string | undefined;
 
@@ -212,9 +215,17 @@ export default function PollResultsPage() {
   return (
     <Stack gap="lg" className="w-full max-w-6xl py-8">
       <div>
-        <Title order={1} mb="xs">
-          Poll Results
-        </Title>
+        <div className="flex gap-4 items-center">
+          <ActionIcon
+            size="lg"
+            variant="light"
+            onClick={() => router.back()}
+            title="Go back"
+          >
+            <IconArrowLeft />
+          </ActionIcon>
+          <Title order={1}>Poll Results</Title>
+        </div>
         <Text c="dimmed" size="sm">
           View voting results and participant responses
         </Text>
@@ -479,6 +490,7 @@ export default function PollResultsPage() {
                         position: 'sticky',
                         left: 0,
                         backgroundColor: 'var(--mantine-color-body)',
+                        minWidth: 140,
                       }}
                     >
                       Time Slot
@@ -536,4 +548,6 @@ export default function PollResultsPage() {
       </div>
     </Stack>
   );
-}
+};
+
+export default Page;
