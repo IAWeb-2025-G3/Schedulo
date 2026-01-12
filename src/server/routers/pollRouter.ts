@@ -4,6 +4,7 @@ import { Poll, ZodPoll } from '~/pages/organize/poll';
 import path from 'path';
 import crypto from 'crypto';
 import z from 'zod';
+import { TRPCError } from '@trpc/server';
 
 const DATA_DIR = process.env.DATA_DIR ?? path.join(process.cwd(), 'data');
 const POLLS_DIR = path.join(DATA_DIR, 'polls');
@@ -15,6 +16,12 @@ async function ensureDir() {
 }
 export const pollRouter = router({
   storePoll: publicProcedure.input(ZodPoll).mutation(async ({ input, ctx }) => {
+    if (!ctx.organizerId) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Organizer not authenticated',
+      });
+    }
     await ensureDir();
     const pollId = input.id ?? crypto.randomUUID();
     const full = {
@@ -45,6 +52,12 @@ export const pollRouter = router({
     return input.id;
   }),
   fetchPolls: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.organizerId) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Organizer not authenticated',
+      });
+    }
     await ensureDir();
     const files = await fs.readdir(POLLS_DIR);
     const polls: Poll[] = [];

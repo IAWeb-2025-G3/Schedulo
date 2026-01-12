@@ -79,7 +79,7 @@ const Page: NextPageWithLayout = () => {
               radius="md"
               p="md"
               component={Link as any}
-              href={`/poll/${poll.id}/results`}
+              href={`/organize/${poll.id}/results`}
               style={{
                 textDecoration: 'none',
                 color: 'inherit',

@@ -34,6 +34,8 @@ export const CalendarCardVote = ({ data }: Props) => {
         timeSlotId: slot.id,
         value: 'ifNeedBe',
       })),
+      createdAt: data.createdAt,
+      organizerId: data.organizerId,
     },
   });
 
@@ -250,8 +252,8 @@ export const CalendarCardVote = ({ data }: Props) => {
       </Card>
       <Button
         type="submit"
-        disabled={name.trim() === '' || storeVotes.isLoading}
-        loading={storeVotes.isLoading}
+        disabled={name.trim() === '' || storeVotes.isPending}
+        loading={storeVotes.isPending}
       >
         Submit
       </Button>

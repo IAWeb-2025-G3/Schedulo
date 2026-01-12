@@ -1,6 +1,6 @@
-import * as React from "react";
-import { useRouter } from "next/router";
-import { trpc } from "~/utils/trpc";
+import * as React from 'react';
+import { useRouter } from 'next/router';
+import { trpc } from '~/utils/trpc';
 import {
   Card,
   Title,
@@ -15,42 +15,45 @@ import {
   ScrollArea,
   Paper,
   Divider,
-} from "@mantine/core";
-import { IconCheck, IconX, IconQuestionMark, IconAlertCircle, IconTrophy } from "@tabler/icons-react";
-import dayjs from "dayjs";
+} from '@mantine/core';
+import {
+  IconCheck,
+  IconX,
+  IconQuestionMark,
+  IconAlertCircle,
+  IconTrophy,
+} from '@tabler/icons-react';
+import dayjs from 'dayjs';
 
-type VoteValue = "yes" | "no" | "ifneedbe" | string;
-
-function slotLabel(slot: any) {
-  const date = slot?.date ?? "";
-  const start = slot?.startTime ?? "";
-  const end = slot?.endTime ?? "";
-  return `${date} ${start}–${end}`;
-}
+type VoteValue = 'yes' | 'no' | 'ifneedbe' | string;
 
 function formatDate(dateString: string) {
-  return dayjs(dateString).format("MMM DD, YYYY");
+  return dayjs(dateString).format('MMM DD, YYYY');
 }
 
 function VoteBadge({ value }: { value: VoteValue }) {
   const normalized = String(value).toLowerCase();
-  if (normalized === "yes") {
+  if (normalized === 'yes') {
     return (
       <Badge color="green" leftSection={<IconCheck size={14} />}>
         Yes
       </Badge>
     );
   }
-  if (normalized === "no") {
+  if (normalized === 'no') {
     return (
       <Badge color="red" leftSection={<IconX size={14} />}>
         No
       </Badge>
     );
   }
-  if (normalized === "ifneedbe") {
+  if (normalized === 'ifneedbe') {
     return (
-      <Badge color="yellow" variant="light" leftSection={<IconQuestionMark size={14} />}>
+      <Badge
+        color="yellow"
+        variant="light"
+        leftSection={<IconQuestionMark size={14} />}
+      >
         Maybe
       </Badge>
     );
@@ -62,14 +65,19 @@ export default function PollResultsPage() {
   const router = useRouter();
   const id = router.query.id as string | undefined;
 
-  const { data: poll, isLoading, error } = trpc.poll.fetchPoll.useQuery(
-    { id: id ?? "" },
-    { enabled: !!id }
-  );
+  const {
+    data: poll,
+    isLoading,
+    error,
+  } = trpc.poll.fetchPoll.useQuery({ id: id ?? '' }, { enabled: !!id });
 
   if (!id) {
     return (
-      <Alert icon={<IconAlertCircle size={16} />} title="Missing Poll ID" color="red">
+      <Alert
+        icon={<IconAlertCircle size={16} />}
+        title="Missing Poll ID"
+        color="red"
+      >
         No poll ID provided in the URL.
       </Alert>
     );
@@ -94,7 +102,11 @@ export default function PollResultsPage() {
 
   if (!poll) {
     return (
-      <Alert icon={<IconAlertCircle size={16} />} title="Poll Not Found" color="orange">
+      <Alert
+        icon={<IconAlertCircle size={16} />}
+        title="Poll Not Found"
+        color="orange"
+      >
         The poll you're looking for doesn't exist.
       </Alert>
     );
@@ -122,53 +134,63 @@ export default function PollResultsPage() {
   const ensureSlot = (slotId: string) => {
     const existing = resultsBySlot.get(slotId);
     if (existing) return existing;
-    const fresh = { yes: 0, ifneedbe: 0, no: 0, total: 0, byName: new Map<string, VoteValue>() };
+    const fresh = {
+      yes: 0,
+      ifneedbe: 0,
+      no: 0,
+      total: 0,
+      byName: new Map<string, VoteValue>(),
+    };
     resultsBySlot.set(slotId, fresh);
     return fresh;
   };
 
   for (const v of votes) {
-    const slotId = String(v?.timeSlotId ?? "");
+    const slotId = String(v?.timeSlotId ?? '');
     if (!slotId) continue;
 
-    const name = String(v?.name ?? "Anonymous");
-    const value: VoteValue = String(v?.value ?? "").toLowerCase();
+    const name = String(v?.name ?? 'Anonymous');
+    const value: VoteValue = String(v?.value ?? '').toLowerCase();
 
     const slotRes = ensureSlot(slotId);
 
     const prev = slotRes.byName.get(name);
     if (prev) {
-      if (prev === "yes") slotRes.yes -= 1;
-      else if (prev === "ifneedbe") slotRes.ifneedbe -= 1;
-      else if (prev === "no") slotRes.no -= 1;
+      if (prev === 'yes') slotRes.yes -= 1;
+      else if (prev === 'ifneedbe') slotRes.ifneedbe -= 1;
+      else if (prev === 'no') slotRes.no -= 1;
     } else {
       slotRes.total += 1;
     }
 
     slotRes.byName.set(name, value);
 
-    if (value === "yes") slotRes.yes += 1;
-    else if (value === "ifneedbe") slotRes.ifneedbe += 1;
-    else if (value === "no") slotRes.no += 1;
+    if (value === 'yes') slotRes.yes += 1;
+    else if (value === 'ifneedbe') slotRes.ifneedbe += 1;
+    else if (value === 'no') slotRes.no += 1;
   }
 
   const voters = Array.from(
     votes.reduce((set: Set<string>, v: any) => {
-      const name = String(v?.name ?? "Anonymous");
+      const name = String(v?.name ?? 'Anonymous');
       set.add(name);
       return set;
-    }, new Set<string>())
+    }, new Set<string>()),
   ).sort((a, b) => a.localeCompare(b));
 
   const sortedSlots = [...dates].sort((a, b) => {
-    const ak = `${a?.date ?? ""} ${a?.startTime ?? ""}`;
-    const bk = `${b?.date ?? ""} ${b?.startTime ?? ""}`;
+    const ak = `${a?.date ?? ''} ${a?.startTime ?? ''}`;
+    const bk = `${b?.date ?? ''} ${b?.startTime ?? ''}`;
     return ak.localeCompare(bk);
   });
 
   // Calculate winner - slot with most "yes" votes, then most "ifneedbe", then least "no"
-  const winner = sortedSlots.reduce<{ slot: any; score: number; stats: any } | null>((best, slot) => {
-    const slotId = String(slot?.id ?? "");
+  const winner = sortedSlots.reduce<{
+    slot: any;
+    score: number;
+    stats: any;
+  } | null>((best, slot) => {
+    const slotId = String(slot?.id ?? '');
     const r = resultsBySlot.get(slotId) ?? {
       yes: 0,
       ifneedbe: 0,
@@ -176,11 +198,11 @@ export default function PollResultsPage() {
       total: 0,
       byName: new Map(),
     };
-    
+
     // Score: prioritize yes votes, then ifneedbe, penalize no votes
     // Weight: yes = 3, ifneedbe = 1, no = -2
     const score = r.yes * 3 + r.ifneedbe * 1 - r.no * 2;
-    
+
     if (!best || score > best.score) {
       return { slot, score, stats: r };
     }
@@ -205,7 +227,7 @@ export default function PollResultsPage() {
             <Text size="sm" fw={600} c="dimmed" mb={4}>
               Title
             </Text>
-            <Title order={3}>{poll.title ?? "(untitled)"}</Title>
+            <Title order={3}>{poll.title ?? '(untitled)'}</Title>
           </div>
 
           {poll.location && (
@@ -228,10 +250,11 @@ export default function PollResultsPage() {
 
           <Group gap="md" mt="sm">
             <Badge size="lg" variant="light">
-              {voters.length} {voters.length === 1 ? "Voter" : "Voters"}
+              {voters.length} {voters.length === 1 ? 'Voter' : 'Voters'}
             </Badge>
             <Badge size="lg" variant="light">
-              {sortedSlots.length} Time {sortedSlots.length === 1 ? "Slot" : "Slots"}
+              {sortedSlots.length} Time{' '}
+              {sortedSlots.length === 1 ? 'Slot' : 'Slots'}
             </Badge>
           </Group>
         </Stack>
@@ -242,7 +265,11 @@ export default function PollResultsPage() {
         <Card withBorder padding="xl">
           <Stack gap="md">
             <Group gap="sm" align="center">
-              <IconTrophy size={36} color="var(--mantine-color-yellow-6)" strokeWidth={2} />
+              <IconTrophy
+                size={36}
+                color="var(--mantine-color-yellow-6)"
+                strokeWidth={2}
+              />
               <div>
                 <Title order={2} mb={4}>
                   Best Time Slot
@@ -302,7 +329,8 @@ export default function PollResultsPage() {
                     )}
                   </Group>
                   <Text size="sm" c="dimmed" mt={8}>
-                    {winner.stats.total} {winner.stats.total === 1 ? "vote" : "votes"} total
+                    {winner.stats.total}{' '}
+                    {winner.stats.total === 1 ? 'vote' : 'votes'} total
                   </Text>
                 </div>
               </Group>
@@ -316,7 +344,8 @@ export default function PollResultsPage() {
           <Group gap="sm">
             <IconAlertCircle size={20} color="var(--mantine-color-dimmed)" />
             <Text c="dimmed">
-              No votes yet. The winner will be displayed once participants start voting.
+              No votes yet. The winner will be displayed once participants start
+              voting.
             </Text>
           </Group>
         </Card>
@@ -329,7 +358,7 @@ export default function PollResultsPage() {
         </Title>
         <Grid gutter="md">
           {sortedSlots.map((slot) => {
-            const slotId = String(slot?.id ?? "");
+            const slotId = String(slot?.id ?? '');
             const r = resultsBySlot.get(slotId) ?? {
               yes: 0,
               ifneedbe: 0,
@@ -340,12 +369,12 @@ export default function PollResultsPage() {
             const best = Math.max(r.yes, r.ifneedbe, r.no);
             const bestLabel =
               best === r.yes
-                ? "yes"
+                ? 'yes'
                 : best === r.ifneedbe
-                  ? "ifneedbe"
+                  ? 'ifneedbe'
                   : best === r.no
-                    ? "no"
-                    : "";
+                    ? 'no'
+                    : '';
 
             return (
               <Grid.Col key={slotId} span={{ base: 12, sm: 6, md: 4 }}>
@@ -375,15 +404,35 @@ export default function PollResultsPage() {
                     </Group>
 
                     <Text size="xs" c="dimmed">
-                      {r.total} {r.total === 1 ? "vote" : "votes"} total
+                      {r.total} {r.total === 1 ? 'vote' : 'votes'} total
                     </Text>
 
                     {r.total > 0 ? (
-                      <Paper p="xs" withBorder bg="dimmed" style={{ backgroundColor: "var(--mantine-color-dark-6)" }}>
+                      <Paper
+                        p="xs"
+                        withBorder
+                        bg="dimmed"
+                        style={{
+                          backgroundColor: 'var(--mantine-color-dark-6)',
+                        }}
+                      >
                         <Text size="sm" fw={500}>
-                          Most common:{" "}
-                          <Text span c={bestLabel === "yes" ? "green" : bestLabel === "ifneedbe" ? "yellow" : "red"}>
-                            {bestLabel === "yes" ? "Yes" : bestLabel === "ifneedbe" ? "Maybe" : "No"}
+                          Most common:{' '}
+                          <Text
+                            span
+                            c={
+                              bestLabel === 'yes'
+                                ? 'green'
+                                : bestLabel === 'ifneedbe'
+                                  ? 'yellow'
+                                  : 'red'
+                            }
+                          >
+                            {bestLabel === 'yes'
+                              ? 'Yes'
+                              : bestLabel === 'ifneedbe'
+                                ? 'Maybe'
+                                : 'No'}
                           </Text>
                         </Text>
                       </Paper>
@@ -425,7 +474,13 @@ export default function PollResultsPage() {
               >
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th style={{ position: "sticky", left: 0, backgroundColor: "var(--mantine-color-body)" }}>
+                    <Table.Th
+                      style={{
+                        position: 'sticky',
+                        left: 0,
+                        backgroundColor: 'var(--mantine-color-body)',
+                      }}
+                    >
                       Time Slot
                     </Table.Th>
                     {voters.map((name) => (
@@ -437,13 +492,17 @@ export default function PollResultsPage() {
                 </Table.Thead>
                 <Table.Tbody>
                   {sortedSlots.map((slot) => {
-                    const slotId = String(slot?.id ?? "");
+                    const slotId = String(slot?.id ?? '');
                     const r = resultsBySlot.get(slotId);
                     return (
                       <Table.Tr key={slotId}>
                         <Table.Td
                           fw={600}
-                          style={{ position: "sticky", left: 0, backgroundColor: "var(--mantine-color-body)" }}
+                          style={{
+                            position: 'sticky',
+                            left: 0,
+                            backgroundColor: 'var(--mantine-color-body)',
+                          }}
                         >
                           <Stack gap={2}>
                             <Text size="sm" c="dimmed">
@@ -458,7 +517,11 @@ export default function PollResultsPage() {
                           const v = r?.byName.get(name);
                           return (
                             <Table.Td key={name}>
-                              {v ? <VoteBadge value={v} /> : <Text c="dimmed">—</Text>}
+                              {v ? (
+                                <VoteBadge value={v} />
+                              ) : (
+                                <Text c="dimmed">—</Text>
+                              )}
                             </Table.Td>
                           );
                         })}
