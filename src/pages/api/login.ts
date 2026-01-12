@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { ORGANIZERS_DIR } from '~/server/routers/organizerRouter';
 
 const COOKIE_NAME = 'organizer_session';
 const SESSION_SECRET =
@@ -21,7 +22,10 @@ function timingSafeEqual(a: string, b: string) {
   return ab.length === bb.length && crypto.timingSafeEqual(ab, bb);
 }
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method !== 'POST') return res.status(405).end();
 
   const { username, password } = req.body || {};
@@ -29,28 +33,29 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ ok: false });
   }
 
-  // Read JSON from disk (server-only)
-  const filePath = path.join(process.cwd(), 'data', 'organizers.json');
-  const raw = fs.readFileSync(filePath, 'utf8');
-  const parsed = JSON.parse(raw) as {
-    organizers: { username: string; password: string }[];
-  };
+  const files = await fs.readdir(ORGANIZERS_DIR);
+  for (const file of files) {
+    if (file.endsWith('.json')) {
+      const content = await fs.readFile(
+        path.join(ORGANIZERS_DIR, file),
+        'utf8',
+      );
+      const organizer = JSON.parse(content);
+      if (organizer.username === username) {
+        if (timingSafeEqual(organizer.password, password)) {
+          const token = sign(username);
+          res.setHeader(
+            'Set-Cookie',
+            `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax; ${
+              process.env.NODE_ENV === 'production' ? 'Secure;' : ''
+            } Max-Age=${60 * 60 * 8}`, // 8 hours
+          );
 
-  const match = parsed.organizers.find((o) => o.username === username);
-
-  if (!match || !timingSafeEqual(match.password, password)) {
-    return res.status(401).json({ ok: false });
+          return res.status(200).json({ ok: true });
+        }
+      }
+    }
   }
 
-  // Put minimal info in cookie (username), signed to prevent tampering
-  const token = sign(username);
-
-  res.setHeader(
-    'Set-Cookie',
-    `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax; ${
-      process.env.NODE_ENV === 'production' ? 'Secure;' : ''
-    } Max-Age=${60 * 60 * 8}`, // 8 hours
-  );
-
-  return res.status(200).json({ ok: true });
+  return res.status(401).json({ ok: false });
 }

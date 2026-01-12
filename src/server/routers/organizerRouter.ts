@@ -15,7 +15,7 @@ const ZodOrganizer = z.object({
 export type Organizer = z.infer<typeof ZodOrganizer>;
 
 const DATA_DIR = process.env.DATA_DIR ?? path.join(process.cwd(), 'data');
-const ORGANIZERS_DIR = path.join(DATA_DIR, 'organizers');
+export const ORGANIZERS_DIR = path.join(DATA_DIR, 'organizers');
 
 function organizerPath(id: string) {
   return path.join(ORGANIZERS_DIR, `${id}.json`);
@@ -40,7 +40,10 @@ export const organizerRouter = router({
       const files = await fs.readdir(ORGANIZERS_DIR);
       for (const file of files) {
         if (file.endsWith('.json')) {
-          const content = await fs.readFile(path.join(ORGANIZERS_DIR, file), 'utf8');
+          const content = await fs.readFile(
+            path.join(ORGANIZERS_DIR, file),
+            'utf8',
+          );
           const organizer = JSON.parse(content);
           if (organizer.username === input.username) {
             throw new Error('Username already exists');
@@ -78,7 +81,10 @@ export const organizerRouter = router({
         throw new Error('Organizer ID is required');
       }
 
-      const existingContent = await fs.readFile(organizerPath(input.id), 'utf8');
+      const existingContent = await fs.readFile(
+        organizerPath(input.id),
+        'utf8',
+      );
       const existingOrganizer = ZodOrganizer.parse(JSON.parse(existingContent));
 
       // Check if username is being changed and if it already exists
@@ -86,7 +92,10 @@ export const organizerRouter = router({
         const files = await fs.readdir(ORGANIZERS_DIR);
         for (const file of files) {
           if (file.endsWith('.json') && file !== `${input.id}.json`) {
-            const content = await fs.readFile(path.join(ORGANIZERS_DIR, file), 'utf8');
+            const content = await fs.readFile(
+              path.join(ORGANIZERS_DIR, file),
+              'utf8',
+            );
             const organizer = JSON.parse(content);
             if (organizer.username === input.username) {
               throw new Error('Username already exists');
@@ -99,12 +108,17 @@ export const organizerRouter = router({
         ...existingOrganizer,
         ...(input.username && { username: input.username }),
         // Only update password if provided and not empty
-        ...(input.password && input.password.length > 0 && { password: input.password }),
+        ...(input.password &&
+          input.password.length > 0 && { password: input.password }),
         updatedAt: new Date().toISOString(),
       };
 
       const tmp = `${organizerPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
-      await fs.writeFile(tmp, JSON.stringify(updatedOrganizer, null, 2), 'utf8');
+      await fs.writeFile(
+        tmp,
+        JSON.stringify(updatedOrganizer, null, 2),
+        'utf8',
+      );
       await fs.rename(tmp, organizerPath(input.id));
       return input.id;
     }),
@@ -123,7 +137,10 @@ export const organizerRouter = router({
     const organizers: Organizer[] = [];
     for (const file of files) {
       if (file.endsWith('.json')) {
-        const content = await fs.readFile(path.join(ORGANIZERS_DIR, file), 'utf8');
+        const content = await fs.readFile(
+          path.join(ORGANIZERS_DIR, file),
+          'utf8',
+        );
         const organizer = ZodOrganizer.parse(JSON.parse(content));
         organizers.push(organizer);
       }
@@ -144,4 +161,3 @@ export const organizerRouter = router({
       return organizer;
     }),
 });
-
