@@ -59,6 +59,10 @@ To stop the application:
 docker-compose down
 ```
 
+### Environment Variables
+
+In order to be able to create organiser accounts by accessing the admin page, you need to at least the define an ADMIN_PASSWORD environment variable that is then used to access the page.
+
 
 ## License
 
