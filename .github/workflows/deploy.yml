@@ -17,13 +17,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node (with pnpm cache)
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
 
-      - name: Enable Corepack
+      - name: Enable Corepack (pnpm)
         run: corepack enable
 
       - name: Install dependencies
