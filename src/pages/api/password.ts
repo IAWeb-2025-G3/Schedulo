@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const COOKIE_NAME = process.env.PASSWORD_COOKIE_NAME || 'pw_gate';
+const COOKIE_NAME = 'pw_gate';
 const PASSWORD = process.env.ADMIN_PASSWORD || '';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {

@@ -32,7 +32,7 @@ export default function DocumentRoot({
           href="/apple-touch-icon.png"
         />
         <meta name="apple-mobile-web-app-title" content="Apollo" />
-        <link rel="manifest" href="/site.webmanifest" />
+        {/* <link rel="manifest" href="/site.webmanifest" /> */}
       </Head>
 
       <main>{children}</main>

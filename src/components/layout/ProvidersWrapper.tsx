@@ -15,7 +15,7 @@ export default function ProvidersWrapper({
         process.env.NODE_ENV == 'development' ? 'debug-screens' : ''
       }`}
     >
-      <MantineProvider defaultColorScheme="dark" theme={defaultTheme}>
+      <MantineProvider defaultColorScheme="auto" theme={defaultTheme}>
         <Notifications />
         <ModalsProvider>
           <DocumentRoot>{children}</DocumentRoot>

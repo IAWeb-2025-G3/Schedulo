@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
 import {
   Button,
   Paper,
@@ -13,9 +12,6 @@ import {
 import { NextPageWithLayout } from '~/pages/_app';
 
 const Page: NextPageWithLayout = () => {
-  const router = useRouter();
-  const { next = '/organizer' } = router.query;
-
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,7 +34,7 @@ const Page: NextPageWithLayout = () => {
         return;
       }
 
-      router.replace(typeof next === 'string' ? next : '/organizer');
+      window.location.href = '/organize';
     } finally {
       setLoading(false);
     }

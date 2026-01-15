@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
 import {
   Button,
   PasswordInput,
@@ -12,9 +11,6 @@ import {
 import { NextPageWithLayout } from '~/pages/_app';
 
 const Page: NextPageWithLayout = () => {
-  const router = useRouter();
-  const { next = '/' } = router.query;
-
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +32,7 @@ const Page: NextPageWithLayout = () => {
         return;
       }
 
-      router.replace(typeof next === 'string' ? next : '/');
+      window.location.href = '/admin';
     } finally {
       setLoading(false);
     }
