@@ -39,6 +39,15 @@ npm install -g pnpm
    ```
    The application will be available at [http://localhost:3000](http://localhost:3000)
 
+### Create and run a production build
+
+  ```bash
+  pnpm build
+  pnpm start
+  ```
+
+  If you encounter problems while building the application, make sure you run your terminal as admin.
+
 ### Docker Deployment
 
 Run the application using Docker Compose:
@@ -61,7 +70,7 @@ docker-compose down
 
 ### Environment Variables
 
-In order to be able to create organiser accounts by accessing the admin page, you need to at least the define an ADMIN_PASSWORD environment variable that is then used to access the page.
+In order to be able to create organiser accounts by accessing the admin page, you need to define an ADMIN_PASSWORD environment variable that is then used to access the page.
 
 
 ## License
