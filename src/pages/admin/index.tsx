@@ -12,7 +12,13 @@ import {
   Stack,
   Group,
 } from '@mantine/core';
-import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
+import {
+  IconEdit,
+  IconTrash,
+  IconPlus,
+  IconEyeOff,
+  IconEye,
+} from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
@@ -27,6 +33,16 @@ type OrganizerFormData = {
 const Page: NextPageWithLayout = () => {
   const [opened, setOpened] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [visiblePasswords, setVisiblePasswords] = useState<
+    Record<string, boolean>
+  >({});
+
+  const togglePassword = (id: string) => {
+    setVisiblePasswords((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   const utils = trpc.useUtils();
   const { data: organizers, isLoading } =
@@ -204,10 +220,26 @@ const Page: NextPageWithLayout = () => {
                       <Text fw={500}>{organizer.username}</Text>
                     </Table.Td>
                     <Table.Td>
-                      <Text c="dimmed" style={{ fontFamily: 'monospace' }}>
-                        {organizer.password}
-                      </Text>
+                      <Group gap="xs">
+                        <Text c="dimmed" style={{ fontFamily: 'monospace' }}>
+                          {visiblePasswords[organizer.id]
+                            ? organizer.password
+                            : '••••••••'}
+                        </Text>
+                        <ActionIcon
+                          size="sm"
+                          variant="subtle"
+                          onClick={() => togglePassword(organizer.id!)}
+                        >
+                          {visiblePasswords[organizer.id] ? (
+                            <IconEyeOff size={16} />
+                          ) : (
+                            <IconEye size={16} />
+                          )}
+                        </ActionIcon>
+                      </Group>
                     </Table.Td>
+
                     <Table.Td>
                       {organizer.createdAt ? (
                         <Text size="sm" c="dimmed">
