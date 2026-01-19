@@ -14,6 +14,7 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import {
+  IconActivity,
   IconAlertCircle,
   IconChevronRight,
   IconLock,
@@ -23,6 +24,7 @@ import { trpc } from '~/utils/trpc';
 import { NextPageWithLayout } from '~/pages/_app';
 import { formatDate } from '~/pages/organize/[id]/results';
 import { usePreferences } from '~/components/layout/PreferenceProvider';
+import { cn } from '~/components/PollForm/PollModal';
 
 const Page: NextPageWithLayout = () => {
   const pollsQuery = trpc.poll.fetchPolls.useQuery();
@@ -94,11 +96,16 @@ const Page: NextPageWithLayout = () => {
                     <Text fw={600} lineClamp={1}>
                       {poll.title}
                     </Text>
-                    {poll.closedAt && (
-                      <ThemeIcon size="xs" variant="transparent" title="Closed">
-                        <IconLock />
-                      </ThemeIcon>
-                    )}
+                    <ThemeIcon
+                      size="xs"
+                      variant={poll.closedAt ? 'transparent' : 'light'}
+                      title="Closed"
+                      radius="lg"
+                      className={cn(poll.closedAt ? '' : 'animate-pulse')}
+                      color={poll.closedAt ? undefined : 'green'}
+                    >
+                      {poll.closedAt ? <IconLock /> : <IconActivity />}
+                    </ThemeIcon>
                   </div>
 
                   <Text c="dimmed" size="xs" mt={2}>

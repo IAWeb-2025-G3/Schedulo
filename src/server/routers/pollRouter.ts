@@ -81,13 +81,40 @@ export const pollRouter = router({
     }),
   closePoll: publicProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.organizerId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Organizer not authenticated',
+        });
+      }
       await ensureDir();
       const content = await fs.readFile(pollPath(input.id), 'utf8');
       const poll = ZodPoll.parse(JSON.parse(content));
       const updatedPoll: Poll = {
         ...poll,
         closedAt: new Date(),
+      };
+      const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
+      await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');
+      await fs.rename(tmp, pollPath(input.id));
+      return input.id;
+    }),
+  reopenPoll: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.organizerId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Organizer not authenticated',
+        });
+      }
+      await ensureDir();
+      const content = await fs.readFile(pollPath(input.id), 'utf8');
+      const poll = ZodPoll.parse(JSON.parse(content));
+      const updatedPoll: Poll = {
+        ...poll,
+        closedAt: undefined,
       };
       const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
       await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');

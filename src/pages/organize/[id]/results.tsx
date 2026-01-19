@@ -27,6 +27,8 @@ import {
   IconTrophy,
   IconArrowLeft,
   IconLock,
+  IconRecycle,
+  IconActivity,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { NextPageWithLayout } from '~/pages/_app';
@@ -34,6 +36,8 @@ import {
   DateFormat,
   usePreferences,
 } from '~/components/layout/PreferenceProvider';
+import { ShareButton } from '~/components/results/ShareButton';
+import { cn } from '~/components/PollForm/PollModal';
 
 type VoteValue = 'yes' | 'no' | 'ifneedbe';
 
@@ -103,8 +107,20 @@ const Page: NextPageWithLayout = () => {
     },
   });
 
+  const reopenPollMutation = trpc.poll.reopenPoll.useMutation({
+    onSuccess: () => {
+      utils.poll.fetchPoll.invalidate({ id: id ?? '' });
+    },
+  });
+
   const closePoll = () => {
     closePollMutation.mutateAsync({
+      id: id ?? '',
+    });
+  };
+
+  const reopenPoll = () => {
+    reopenPollMutation.mutateAsync({
       id: id ?? '',
     });
   };
@@ -250,21 +266,63 @@ const Page: NextPageWithLayout = () => {
   return (
     <Stack gap="lg" className="w-full max-w-6xl py-8">
       <div>
-        <div className="flex gap-4 items-center">
-          <ActionIcon
-            size="lg"
-            variant="light"
-            onClick={() => router.back()}
-            title="Go back"
-          >
-            <IconArrowLeft />
-          </ActionIcon>
-          <div className="flex gap-2 items-center">
-            <Title order={1}>Poll Results</Title>
-            {poll.closedAt && (
-              <ThemeIcon size="lg" variant="transparent" title="Closed">
-                <IconLock />
+        <div className="flex justify-between">
+          <div className="flex gap-4 items-center">
+            <ActionIcon
+              size="lg"
+              variant="light"
+              onClick={() => router.back()}
+              title="Go back"
+            >
+              <IconArrowLeft />
+            </ActionIcon>
+            <div className="flex gap-2 items-center">
+              <Title order={1}>Poll Results</Title>
+              <ThemeIcon
+                size="md"
+                variant={poll.closedAt ? 'transparent' : 'light'}
+                title="Closed"
+                radius="lg"
+                className={cn(poll.closedAt ? '' : 'animate-pulse')}
+                color={poll.closedAt ? undefined : 'green'}
+              >
+                {poll.closedAt ? <IconLock /> : <IconActivity />}
               </ThemeIcon>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={poll.closedAt === undefined ? closePoll : reopenPoll}
+              leftSection={
+                poll.closedAt === undefined ? (
+                  <IconLock size={16} />
+                ) : (
+                  <IconRecycle size={16} />
+                )
+              }
+              loading={
+                poll.closedAt === undefined
+                  ? closePollMutation.isPending
+                  : reopenPollMutation.isPending
+              }
+            >
+              {poll.closedAt === undefined ? 'Close Poll' : 'Reopen Poll'}
+            </Button>
+
+            {poll.closedAt && (
+              <ShareButton
+                title="Poll Results"
+                text="Check out the results of this poll!"
+                url={`${window.location.origin}/results/${poll.id}`}
+              />
+            )}
+            {!poll.closedAt && (
+              <ShareButton
+                title="Poll"
+                text="Vote in this poll!"
+                url={`${window.location.origin}/vote/${poll.id}`}
+              />
             )}
           </div>
         </div>
@@ -581,15 +639,6 @@ const Page: NextPageWithLayout = () => {
           </Card>
         )}
       </div>
-      {poll.closedAt === undefined && (
-        <Button
-          onClick={closePoll}
-          leftSection={<IconLock size={16} />}
-          loading={closePollMutation.isPending}
-        >
-          Close Poll
-        </Button>
-      )}
     </Stack>
   );
 };
