@@ -98,7 +98,10 @@ const Page: NextPageWithLayout = () => {
     data: poll,
     isLoading,
     error,
-  } = trpc.poll.fetchPoll.useQuery({ id: id ?? '' }, { enabled: !!id });
+  } = trpc.poll.fetchPoll.useQuery(
+    { id: id ?? '' },
+    { enabled: !!id, refetchInterval: 10000 },
+  );
 
   const utils = trpc.useUtils();
   const closePollMutation = trpc.poll.closePoll.useMutation({
