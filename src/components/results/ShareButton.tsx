@@ -1,4 +1,4 @@
-import { Button } from '@mantine/core';
+import { ActionIcon, Button } from '@mantine/core';
 import { IconShare } from '@tabler/icons-react';
 
 type ShareButtonProps = {
@@ -31,8 +31,22 @@ export const ShareButton = ({
   if (!canShare) return null; // or fallback UI
 
   return (
-    <Button leftSection={<IconShare size={16} />} onClick={handleShare}>
-      Share
-    </Button>
+    <>
+      <ActionIcon
+        className="sm:!hidden"
+        size="lg"
+        onClick={handleShare}
+        title="Go back"
+      >
+        <IconShare size={16} />
+      </ActionIcon>
+      <Button
+        leftSection={<IconShare size={16} />}
+        onClick={handleShare}
+        className="!hidden sm:!block"
+      >
+        Share
+      </Button>
+    </>
   );
 };

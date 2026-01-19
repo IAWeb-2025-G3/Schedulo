@@ -269,7 +269,7 @@ const Page: NextPageWithLayout = () => {
   return (
     <Stack gap="lg" className="w-full max-w-6xl py-8">
       <div>
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-2">
           <div className="flex gap-4 items-center">
             <ActionIcon
               size="lg"
@@ -280,7 +280,7 @@ const Page: NextPageWithLayout = () => {
               <IconArrowLeft />
             </ActionIcon>
             <div className="flex gap-2 items-center">
-              <Title order={1}>Poll Results</Title>
+              <Title order={1}>Results</Title>
               <ThemeIcon
                 size="md"
                 variant={poll.closedAt ? 'transparent' : 'light'}
@@ -293,25 +293,48 @@ const Page: NextPageWithLayout = () => {
               </ThemeIcon>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={poll.closedAt === undefined ? closePoll : reopenPoll}
-              leftSection={
-                poll.closedAt === undefined ? (
+          <div className="flex gap-2 items-center">
+            <>
+              <ActionIcon
+                variant="outline"
+                className="sm:!hidden"
+                size="lg"
+                onClick={poll.closedAt === undefined ? closePoll : reopenPoll}
+                title={
+                  poll.closedAt === undefined ? 'Close Poll' : 'Reopen Poll'
+                }
+                loading={
+                  poll.closedAt === undefined
+                    ? closePollMutation.isPending
+                    : reopenPollMutation.isPending
+                }
+              >
+                {poll.closedAt === undefined ? (
                   <IconLock size={16} />
                 ) : (
                   <IconRecycle size={16} />
-                )
-              }
-              loading={
-                poll.closedAt === undefined
-                  ? closePollMutation.isPending
-                  : reopenPollMutation.isPending
-              }
-            >
-              {poll.closedAt === undefined ? 'Close Poll' : 'Reopen Poll'}
-            </Button>
+                )}
+              </ActionIcon>
+              <Button
+                className="!hidden sm:!block"
+                variant="outline"
+                onClick={poll.closedAt === undefined ? closePoll : reopenPoll}
+                leftSection={
+                  poll.closedAt === undefined ? (
+                    <IconLock size={16} />
+                  ) : (
+                    <IconRecycle size={16} />
+                  )
+                }
+                loading={
+                  poll.closedAt === undefined
+                    ? closePollMutation.isPending
+                    : reopenPollMutation.isPending
+                }
+              >
+                {poll.closedAt === undefined ? 'Close Poll' : 'Reopen Poll'}
+              </Button>
+            </>
 
             {poll.closedAt && (
               <ShareButton

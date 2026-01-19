@@ -11,6 +11,7 @@ import {
   Modal,
   Stack,
   Group,
+  ScrollArea,
 } from '@mantine/core';
 import {
   IconEdit,
@@ -206,86 +207,88 @@ const Page: NextPageWithLayout = () => {
             Loading organizers...
           </Text>
         ) : organizers && organizers.length > 0 ? (
-          <Table striped highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Username</Table.Th>
-                <Table.Th>Password</Table.Th>
-                <Table.Th>Created</Table.Th>
-                <Table.Th style={{ width: 120 }}>Actions</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {organizers.map((organizer) => {
-                if (!organizer.id) return null;
-                return (
-                  <Table.Tr key={organizer.id}>
-                    <Table.Td>
-                      <Text fw={500}>{organizer.username}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <div className="flex gap-2">
-                        <ActionIcon
-                          size="sm"
-                          variant="subtle"
-                          onClick={() => togglePassword(organizer.id!)}
-                        >
-                          {visiblePasswords[organizer.id] ? (
-                            <IconEyeOff size={16} />
-                          ) : (
-                            <IconEye size={16} />
-                          )}
-                        </ActionIcon>
-                        <Text c="dimmed" style={{ fontFamily: 'monospace' }}>
-                          {visiblePasswords[organizer.id]
-                            ? organizer.password
-                            : '••••••••'}
-                        </Text>
-                      </div>
-                    </Table.Td>
+          <ScrollArea>
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Username</Table.Th>
+                  <Table.Th>Password</Table.Th>
+                  <Table.Th>Created</Table.Th>
+                  <Table.Th style={{ width: 120 }}>Actions</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {organizers.map((organizer) => {
+                  if (!organizer.id) return null;
+                  return (
+                    <Table.Tr key={organizer.id}>
+                      <Table.Td>
+                        <Text fw={500}>{organizer.username}</Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <div className="flex gap-2">
+                          <ActionIcon
+                            size="sm"
+                            variant="subtle"
+                            onClick={() => togglePassword(organizer.id!)}
+                          >
+                            {visiblePasswords[organizer.id] ? (
+                              <IconEyeOff size={16} />
+                            ) : (
+                              <IconEye size={16} />
+                            )}
+                          </ActionIcon>
+                          <Text c="dimmed" style={{ fontFamily: 'monospace' }}>
+                            {visiblePasswords[organizer.id]
+                              ? organizer.password
+                              : '••••'}
+                          </Text>
+                        </div>
+                      </Table.Td>
 
-                    <Table.Td>
-                      {organizer.createdAt ? (
-                        <Text size="sm" c="dimmed">
-                          {formatDate(organizer.createdAt, dateFormat)}
-                        </Text>
-                      ) : (
-                        <Text size="sm" c="dimmed">
-                          —
-                        </Text>
-                      )}
-                    </Table.Td>
-                    <Table.Td>
-                      <Group gap="xs">
-                        <ActionIcon
-                          variant="subtle"
-                          color="blue"
-                          onClick={() =>
-                            handleOpenEdit({
-                              id: organizer.id!,
-                              username: organizer.username,
-                              password: organizer.password,
-                            })
-                          }
-                        >
-                          <IconEdit size={18} />
-                        </ActionIcon>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          onClick={() =>
-                            handleDelete(organizer.id!, organizer.username)
-                          }
-                        >
-                          <IconTrash size={18} />
-                        </ActionIcon>
-                      </Group>
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })}
-            </Table.Tbody>
-          </Table>
+                      <Table.Td>
+                        {organizer.createdAt ? (
+                          <Text size="sm" c="dimmed">
+                            {formatDate(organizer.createdAt, dateFormat)}
+                          </Text>
+                        ) : (
+                          <Text size="sm" c="dimmed">
+                            —
+                          </Text>
+                        )}
+                      </Table.Td>
+                      <Table.Td>
+                        <div className="flex gap-1">
+                          <ActionIcon
+                            variant="subtle"
+                            color="blue"
+                            onClick={() =>
+                              handleOpenEdit({
+                                id: organizer.id!,
+                                username: organizer.username,
+                                password: organizer.password,
+                              })
+                            }
+                          >
+                            <IconEdit size={18} />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            onClick={() =>
+                              handleDelete(organizer.id!, organizer.username)
+                            }
+                          >
+                            <IconTrash size={18} />
+                          </ActionIcon>
+                        </div>
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })}
+              </Table.Tbody>
+            </Table>
+          </ScrollArea>
         ) : (
           <Text c="dimmed" ta="center" py="xl">
             No organizers yet. Click "Add Organizer" to create one.

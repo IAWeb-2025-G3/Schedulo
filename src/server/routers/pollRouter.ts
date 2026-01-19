@@ -69,7 +69,7 @@ export const pollRouter = router({
         if (poll.organizerId === ctx.organizerId) polls.push(poll);
       }
     }
-    return polls;
+    return polls.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }),
   fetchPoll: publicProcedure
     .input(z.object({ id: z.string() }))
