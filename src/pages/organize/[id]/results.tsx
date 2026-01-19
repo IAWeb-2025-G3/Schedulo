@@ -16,6 +16,8 @@ import {
   Paper,
   Divider,
   ActionIcon,
+  Button,
+  ThemeIcon,
 } from '@mantine/core';
 import {
   IconCheck,
@@ -24,6 +26,7 @@ import {
   IconAlertCircle,
   IconTrophy,
   IconArrowLeft,
+  IconLock,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { NextPageWithLayout } from '~/pages/_app';
@@ -92,6 +95,19 @@ const Page: NextPageWithLayout = () => {
     isLoading,
     error,
   } = trpc.poll.fetchPoll.useQuery({ id: id ?? '' }, { enabled: !!id });
+
+  const utils = trpc.useUtils();
+  const closePollMutation = trpc.poll.closePoll.useMutation({
+    onSuccess: () => {
+      utils.poll.fetchPoll.invalidate({ id: id ?? '' });
+    },
+  });
+
+  const closePoll = () => {
+    closePollMutation.mutateAsync({
+      id: id ?? '',
+    });
+  };
 
   if (!id) {
     return (
@@ -243,7 +259,14 @@ const Page: NextPageWithLayout = () => {
           >
             <IconArrowLeft />
           </ActionIcon>
-          <Title order={1}>Poll Results</Title>
+          <div className="flex gap-2 items-center">
+            <Title order={1}>Poll Results</Title>
+            {poll.closedAt && (
+              <ThemeIcon size="lg" variant="transparent" title="Closed">
+                <IconLock />
+              </ThemeIcon>
+            )}
+          </div>
         </div>
         <Text c="dimmed" size="sm">
           View voting results and participant responses
@@ -558,6 +581,15 @@ const Page: NextPageWithLayout = () => {
           </Card>
         )}
       </div>
+      {poll.closedAt === undefined && (
+        <Button
+          onClick={closePoll}
+          leftSection={<IconLock size={16} />}
+          loading={closePollMutation.isPending}
+        >
+          Close Poll
+        </Button>
+      )}
     </Stack>
   );
 };

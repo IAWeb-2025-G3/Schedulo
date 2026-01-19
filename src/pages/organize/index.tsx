@@ -11,10 +11,12 @@ import {
   Alert,
   Button,
   ActionIcon,
+  ThemeIcon,
 } from '@mantine/core';
 import {
   IconAlertCircle,
   IconChevronRight,
+  IconLock,
   IconPlus,
 } from '@tabler/icons-react';
 import { trpc } from '~/utils/trpc';
@@ -88,9 +90,16 @@ const Page: NextPageWithLayout = () => {
             >
               <div className="flex justify-between flex-nowrap items-center">
                 <div style={{ minWidth: 0 }}>
-                  <Text fw={600} lineClamp={1}>
-                    {poll.title}
-                  </Text>
+                  <div className="flex gap-2 items-center">
+                    <Text fw={600} lineClamp={1}>
+                      {poll.title}
+                    </Text>
+                    {poll.closedAt && (
+                      <ThemeIcon size="xs" variant="transparent" title="Closed">
+                        <IconLock />
+                      </ThemeIcon>
+                    )}
+                  </div>
 
                   <Text c="dimmed" size="xs" mt={2}>
                     Created {formatDate(poll.createdAt, dateFormat)}

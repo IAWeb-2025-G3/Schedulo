@@ -79,4 +79,19 @@ export const pollRouter = router({
       const poll = ZodPoll.parse(JSON.parse(content));
       return poll;
     }),
+  closePoll: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      await ensureDir();
+      const content = await fs.readFile(pollPath(input.id), 'utf8');
+      const poll = ZodPoll.parse(JSON.parse(content));
+      const updatedPoll: Poll = {
+        ...poll,
+        closedAt: new Date(),
+      };
+      const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
+      await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');
+      await fs.rename(tmp, pollPath(input.id));
+      return input.id;
+    }),
 });
