@@ -131,7 +131,7 @@ export const CalendarCardVote = ({ data }: Props) => {
         <Space h="md" />
 
         <Card.Section>
-          <div className="flex gap-2 p-4 justify-center">
+          <div className="flex gap-2 p-4 justify-center flex-col md:flex-row">
             <Calendar
               getDayProps={(date) => {
                 const dateString = dayjs(date).format('YYYY-MM-DD');

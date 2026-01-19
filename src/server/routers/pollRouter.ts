@@ -122,4 +122,25 @@ export const pollRouter = router({
       await fs.rename(tmp, pollPath(input.id));
       return input.id;
     }),
+  deletePoll: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.organizerId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Organizer not authenticated',
+        });
+      }
+      await ensureDir();
+      const content = await fs.readFile(pollPath(input.id), 'utf8');
+      const poll = ZodPoll.parse(JSON.parse(content));
+      if (poll.organizerId !== ctx.organizerId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to delete this poll',
+        });
+      }
+      await fs.unlink(pollPath(input.id));
+      return input.id;
+    }),
 });

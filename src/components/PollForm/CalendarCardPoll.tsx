@@ -87,7 +87,7 @@ export const CalendarCardPoll = ({ form }: Props) => {
       <Space h="md" />
 
       <Card.Section>
-        <div className="flex gap-2 p-4 justify-center">
+        <div className="flex flex-col md:flex-row gap-2 p-4 justify-center">
           <Calendar
             getDayProps={(date) => {
               const key = dayjs(date).format('YYYY-MM-DD');

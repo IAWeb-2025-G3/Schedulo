@@ -31,6 +31,7 @@ import {
   IconLock,
   IconRecycle,
   IconActivity,
+  IconTrash,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { NextPageWithLayout } from '~/pages/_app';
@@ -42,6 +43,7 @@ import { ShareButton } from '~/components/results/ShareButton';
 import { cn } from '~/components/PollForm/PollModal';
 import { useDisclosure } from '@mantine/hooks';
 import { TableComment } from '~/components/results/TableComment';
+import { modals } from '@mantine/modals';
 
 type VoteValue = 'yes' | 'no' | 'ifneedbe';
 
@@ -139,6 +141,12 @@ const Page: NextPageWithLayout = () => {
   const reopenPollMutation = trpc.poll.reopenPoll.useMutation({
     onSuccess: () => {
       utils.poll.fetchPoll.invalidate({ id: id ?? '' });
+    },
+  });
+
+  const deletePollMutation = trpc.poll.deletePoll.useMutation({
+    onSuccess: () => {
+      router.push('/organize');
     },
   });
 
@@ -292,6 +300,23 @@ const Page: NextPageWithLayout = () => {
     return best;
   }, null);
 
+  const handleDelete = () => {
+    modals.openConfirmModal({
+      title: 'Delete Poll',
+      children: (
+        <Text size="sm">
+          Are you sure you want to delete this poll? This action cannot be
+          undone.
+        </Text>
+      ),
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      confirmProps: { color: 'red' },
+      onConfirm: () => {
+        deletePollMutation.mutateAsync({ id: id ?? '' });
+      },
+    });
+  };
+
   return (
     <Stack gap="lg" className="w-full max-w-6xl py-8">
       <div>
@@ -321,6 +346,14 @@ const Page: NextPageWithLayout = () => {
           </div>
           <div className="flex gap-2 items-center">
             <>
+              <Button
+                color="red"
+                variant="light"
+                leftSection={<IconTrash size={16} />}
+                onClick={handleDelete}
+              >
+                Delete Poll
+              </Button>
               <ActionIcon
                 variant="outline"
                 className="sm:!hidden"
