@@ -67,7 +67,7 @@ export const CalendarCardVote = ({ data }: Props) => {
     const payload: Poll = {
       ...values,
       votes: form.values.votes?.map((vote) => ({ ...vote, name })),
-      comment: { name, comment },
+      comment: [{ name, comment }],
     };
 
     try {

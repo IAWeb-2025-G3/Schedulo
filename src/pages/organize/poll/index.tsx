@@ -43,7 +43,7 @@ export const ZodPoll = z.object({
   createdAt: z.coerce.date(),
   organizerId: z.string(),
   closedAt: z.coerce.date().optional(),
-  comment: ZodComment.optional(),
+  comment: ZodComment.array().optional(),
 });
 export type Poll = z.infer<typeof ZodPoll>;
 

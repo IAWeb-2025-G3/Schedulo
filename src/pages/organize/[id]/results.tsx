@@ -18,6 +18,8 @@ import {
   ActionIcon,
   Button,
   ThemeIcon,
+  Indicator,
+  Popover,
 } from '@mantine/core';
 import {
   IconCheck,
@@ -38,6 +40,8 @@ import {
 } from '~/components/layout/PreferenceProvider';
 import { ShareButton } from '~/components/results/ShareButton';
 import { cn } from '~/components/PollForm/PollModal';
+import { useDisclosure } from '@mantine/hooks';
+import { TableComment } from '~/components/results/TableComment';
 
 type VoteValue = 'yes' | 'no' | 'ifneedbe';
 
@@ -59,24 +63,25 @@ export function formatDate(value: Date | string | number, fmt: DateFormat) {
   }
 }
 
-function VoteBadge({ value }: { value: VoteValue }) {
+function VoteBadge({ value, comment }: { value: VoteValue; comment?: string }) {
+  const [opened, { close, open }] = useDisclosure(false);
+
+  let content = <></>;
   const normalized = String(value).toLowerCase();
   if (normalized === 'yes') {
-    return (
+    content = (
       <Badge color="green" leftSection={<IconCheck size={14} />}>
         Yes
       </Badge>
     );
-  }
-  if (normalized === 'no') {
-    return (
+  } else if (normalized === 'no') {
+    content = (
       <Badge color="red" leftSection={<IconX size={14} />}>
         No
       </Badge>
     );
-  }
-  if (normalized === 'ifneedbe') {
-    return (
+  } else if (normalized === 'ifneedbe') {
+    content = (
       <Badge
         color="yellow"
         variant="light"
@@ -85,8 +90,29 @@ function VoteBadge({ value }: { value: VoteValue }) {
         If Need Be
       </Badge>
     );
+  } else {
+    content = <Text c="dimmed">—</Text>;
   }
-  return <Text c="dimmed">—</Text>;
+  return (
+    <Popover opened={opened} disabled={!comment} position="top-start" withArrow>
+      <Popover.Target>
+        <div onMouseEnter={open} onMouseLeave={close}>
+          <Indicator position="top-start" color="yellow" disabled={!comment}>
+            {content}
+          </Indicator>
+        </div>
+      </Popover.Target>
+      <Popover.Dropdown p="xs">
+        {comment ? (
+          <Text size="sm">{comment}</Text>
+        ) : (
+          <Text size="sm" c="dimmed">
+            No comment
+          </Text>
+        )}
+      </Popover.Dropdown>
+    </Popover>
+  );
 }
 
 const Page: NextPageWithLayout = () => {
@@ -184,7 +210,7 @@ const Page: NextPageWithLayout = () => {
       ifneedbe: number;
       no: number;
       total: number;
-      byName: Map<string, VoteValue>;
+      byName: Map<string, { value: VoteValue; comment?: string }>;
     }
   >();
 
@@ -196,7 +222,7 @@ const Page: NextPageWithLayout = () => {
       ifneedbe: 0,
       no: 0,
       total: 0,
-      byName: new Map<string, VoteValue>(),
+      byName: new Map<string, { value: VoteValue; comment?: string }>(),
     };
     resultsBySlot.set(slotId, fresh);
     return fresh;
@@ -213,14 +239,14 @@ const Page: NextPageWithLayout = () => {
 
     const prev = slotRes.byName.get(name);
     if (prev) {
-      if (prev === 'yes') slotRes.yes -= 1;
-      else if (prev === 'ifneedbe') slotRes.ifneedbe -= 1;
-      else if (prev === 'no') slotRes.no -= 1;
+      if (prev.value === 'yes') slotRes.yes -= 1;
+      else if (prev.value === 'ifneedbe') slotRes.ifneedbe -= 1;
+      else if (prev.value === 'no') slotRes.no -= 1;
     } else {
       slotRes.total += 1;
     }
 
-    slotRes.byName.set(name, value);
+    slotRes.byName.set(name, { value, comment: v?.comment });
 
     if (value === 'yes') slotRes.yes += 1;
     else if (value === 'ifneedbe') slotRes.ifneedbe += 1;
@@ -614,11 +640,13 @@ const Page: NextPageWithLayout = () => {
                     >
                       Time Slot
                     </Table.Th>
-                    {voters.map((name) => (
-                      <Table.Th key={name} style={{ minWidth: 120 }}>
-                        {name}
-                      </Table.Th>
-                    ))}
+                    {voters.map((name) => {
+                      return (
+                        <Table.Th key={name} style={{ minWidth: 120 }}>
+                          <TableComment name={name} poll={poll} />
+                        </Table.Th>
+                      );
+                    })}
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -649,7 +677,10 @@ const Page: NextPageWithLayout = () => {
                           return (
                             <Table.Td key={name}>
                               {v ? (
-                                <VoteBadge value={v} />
+                                <VoteBadge
+                                  value={v?.value}
+                                  comment={v?.comment}
+                                />
                               ) : (
                                 <Text c="dimmed">—</Text>
                               )}
