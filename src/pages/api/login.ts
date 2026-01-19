@@ -3,14 +3,13 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { ORGANIZERS_DIR } from '~/server/routers/organizerRouter';
+import { env } from '~/server/env';
 
 const COOKIE_NAME = 'organizer_session';
-export const SESSION_SECRET =
-  process.env.ORGANIZER_SESSION_SECRET || 'dev-secret-change-me';
 
-function sign(value: string) {
+export function sign(value: string) {
   const sig = crypto
-    .createHmac('sha256', SESSION_SECRET)
+    .createHmac('sha256', env.ORGANIZER_SESSION_SECRET)
     .update(value)
     .digest('base64url');
   return `${value}.${sig}`;
@@ -43,11 +42,12 @@ export default async function handler(
       const organizer = JSON.parse(content);
       if (organizer.username === username) {
         if (timingSafeEqual(organizer.password, password)) {
-          const token = sign(organizer.id);
+          const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 8;
+          const token = sign(`${organizer.id}.${exp}`);
           res.setHeader(
             'Set-Cookie',
             `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Lax; ${
-              process.env.NODE_ENV === 'production' ? 'Secure;' : ''
+              env.NODE_ENV === 'production' ? 'Secure;' : ''
             } Max-Age=${60 * 60 * 8}`, // 8 hours
           );
 

@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import {
+  verifyAdminCookie,
+  verifyOrgCookie,
+} from '~/server/auth/organizerSession';
 
-const PW_COOKIE = 'pw_gate';
+const PW_COOKIE = 'admin_session';
 const ORG_COOKIE = 'organizer_session';
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (
@@ -19,9 +23,9 @@ export function middleware(req: NextRequest) {
   }
 
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
-    const pw = req.cookies.get(PW_COOKIE)?.value;
+    const adm = req.cookies.get(PW_COOKIE)?.value;
 
-    if (pw === 'ok') {
+    if (adm && (await verifyAdminCookie(adm))) {
       return NextResponse.next();
     }
 
@@ -34,7 +38,7 @@ export function middleware(req: NextRequest) {
   if (pathname === '/organize' || pathname.startsWith('/organize/')) {
     const org = req.cookies.get(ORG_COOKIE)?.value;
 
-    if (org) {
+    if (org && (await verifyOrgCookie(org))) {
       return NextResponse.next();
     }
 

@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import z from 'zod';
+import { env } from '~/server/env';
 
 const ZodOrganizer = z.object({
   id: z.string().optional(),
@@ -14,7 +15,7 @@ const ZodOrganizer = z.object({
 
 export type Organizer = z.infer<typeof ZodOrganizer>;
 
-const DATA_DIR = process.env.DATA_DIR ?? path.join(process.cwd(), 'data');
+const DATA_DIR = env.DATA_DIR ?? path.join(process.cwd(), 'data');
 export const ORGANIZERS_DIR = path.join(DATA_DIR, 'organizers');
 
 function organizerPath(id: string) {

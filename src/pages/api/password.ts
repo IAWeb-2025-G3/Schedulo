@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { sign } from '~/pages/api/login';
+import { env } from '~/server/env';
 
-const COOKIE_NAME = 'pw_gate';
-const PASSWORD = process.env.ADMIN_PASSWORD || '';
+const PW_COOKIE = 'admin_session';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -10,15 +11,18 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const { password } = req.body || {};
 
-  if (!PASSWORD || password !== PASSWORD) {
+  if (password !== env.ADMIN_PASSWORD) {
     return res.status(401).json({ ok: false });
   }
 
+  const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 8;
+  const token = sign(`${exp}`);
+
   res.setHeader(
     'Set-Cookie',
-    `${COOKIE_NAME}=ok; Path=/; HttpOnly; SameSite=Lax; ${
-      process.env.NODE_ENV === 'production' ? 'Secure;' : ''
-    } Max-Age=${60 * 60 * 24}`,
+    `${PW_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; ${
+      env.NODE_ENV === 'production' ? 'Secure;' : ''
+    } Max-Age=${60 * 60 * 8}`,
   );
 
   res.status(200).json({ ok: true });

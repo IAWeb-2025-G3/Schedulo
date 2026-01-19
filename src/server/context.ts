@@ -1,5 +1,5 @@
 import type * as trpcNext from '@trpc/server/adapters/next';
-import { verifyOrganizerCookie } from '~/server/auth/organizerSession';
+import { verifyOrgCookie } from '~/server/auth/organizerSession';
 interface CreateContextOptions {
   organizerId: string | null;
 }
@@ -24,7 +24,10 @@ export async function createContext(
 ): Promise<Context> {
   // NextApiRequest in Pages Router has parsed cookies here:
   const token = opts.req.cookies.organizer_session;
-  const organizerId = verifyOrganizerCookie(token);
+  if (!token) {
+    return await createContextInner({ organizerId: null });
+  }
+  const organizerId = await verifyOrgCookie(token);
 
-  return await createContextInner({ organizerId });
+  return await createContextInner({ organizerId: organizerId?.orgId || null });
 }
