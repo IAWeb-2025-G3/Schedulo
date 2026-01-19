@@ -3,35 +3,24 @@ import {
   Title,
   Space,
   Text,
-  ActionIcon,
   Button,
   TextInput,
   Tooltip,
-  TooltipProps,
+  Textarea,
 } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { Poll, VoteValue } from '~/pages/organize/poll';
+import { Poll } from '~/pages/organize/poll';
 import dayjs from 'dayjs';
-import {
-  IconArrowBack,
-  IconCheck,
-  IconQuestionMark,
-  IconSend,
-  IconX,
-} from '@tabler/icons-react';
+import { IconArrowBack, IconSend } from '@tabler/icons-react';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { modals } from '@mantine/modals';
+import { TimeSlotCard } from '~/components/VoteForm/TimeSlotcard';
 type Props = {
   data: Poll;
-};
-
-const tooltipProps: TooltipProps = {
-  label: '',
-  openDelay: 500,
 };
 
 export const CalendarCardVote = ({ data }: Props) => {
@@ -54,72 +43,9 @@ export const CalendarCardVote = ({ data }: Props) => {
   });
 
   const [name, setName] = useState('');
+  const [comment, setComment] = useState('');
   const router = useRouter();
 
-  const handleConfirmation = (id: string) => {
-    form.setFieldValue('votes', (current) => {
-      const next = [...current!];
-      const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
-      if (voteIndex === -1) {
-        next.push({ pollId: data.id!, name: '', timeSlotId: id, value: 'yes' });
-      } else {
-        next[voteIndex] = {
-          pollId: data.id!,
-          name: '',
-          timeSlotId: id,
-          value: 'yes',
-        };
-      }
-      return next;
-    });
-  };
-  const handleRejection = (id: string) => {
-    form.setFieldValue('votes', (current) => {
-      const next = [...current!];
-      const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
-      if (voteIndex === -1) {
-        next.push({ pollId: data.id!, name: '', timeSlotId: id, value: 'no' });
-      } else {
-        next[voteIndex] = {
-          pollId: data.id!,
-          name: '',
-          timeSlotId: id,
-          value: 'no',
-        };
-      }
-      return next;
-    });
-  };
-
-  const handleUndecided = (id: string) => {
-    form.setFieldValue('votes', (current) => {
-      const next = [...current!];
-      const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
-      if (voteIndex === -1) {
-        next.push({
-          pollId: data.id!,
-          name: '',
-          timeSlotId: id,
-          value: 'ifNeedBe',
-        });
-      } else {
-        next[voteIndex] = {
-          pollId: data.id!,
-          name: '',
-          timeSlotId: id,
-          value: 'ifNeedBe',
-        };
-      }
-      return next;
-    });
-  };
-
-  const handleButtonStyle = (slotId: string, value: VoteValue) => {
-    return form.values.votes?.find((vote) => vote.timeSlotId === slotId)
-      ?.value === value
-      ? 'filled'
-      : 'subtle';
-  };
   const storeVotes = trpc.poll.storeVotes.useMutation({
     onSuccess: () => {
       notifications.show({
@@ -141,6 +67,7 @@ export const CalendarCardVote = ({ data }: Props) => {
     const payload: Poll = {
       ...values,
       votes: form.values.votes?.map((vote) => ({ ...vote, name })),
+      comment: { name, comment },
     };
 
     try {
@@ -182,9 +109,17 @@ export const CalendarCardVote = ({ data }: Props) => {
       <Card withBorder>
         <TextInput
           required
+          placeholder="Enter your name"
           label="Name"
           value={name}
           onChange={(event) => setName(event.currentTarget.value)}
+        />
+        <Textarea
+          label="Comment"
+          placeholder="Add any additional comment here"
+          value={comment}
+          onChange={(event) => setComment(event.currentTarget.value)}
+          resize="vertical"
         />
       </Card>
       <Card withBorder>
@@ -245,55 +180,12 @@ export const CalendarCardVote = ({ data }: Props) => {
                     </Card>
                     <div className="flex flex-col gap-2">
                       {timeSlots.slots.map((slot, index) => (
-                        <div className="flex gap-2 items-center" key={index}>
-                          <Card withBorder className="!py-1">
-                            <Text>{slot.startTime}</Text>
-                          </Card>
-                          -
-                          <Card withBorder className="!py-1">
-                            <Text>{slot.endTime}</Text>
-                          </Card>
-                          <div className="flex gap-1 items-center">
-                            <Tooltip
-                              {...tooltipProps}
-                              label="Yes"
-                              color="green"
-                            >
-                              <ActionIcon
-                                size="input-xs"
-                                variant={handleButtonStyle(slot.id, 'yes')}
-                                color="green"
-                                onClick={() => handleConfirmation(slot.id)}
-                              >
-                                <IconCheck size={16} />
-                              </ActionIcon>
-                            </Tooltip>
-                            <Tooltip {...tooltipProps} label="No" color="red">
-                              <ActionIcon
-                                size="input-xs"
-                                variant={handleButtonStyle(slot.id, 'no')}
-                                color="red"
-                                onClick={() => handleRejection(slot.id)}
-                              >
-                                <IconX size={16} />
-                              </ActionIcon>
-                            </Tooltip>
-                            <Tooltip
-                              {...tooltipProps}
-                              label="If Need Be"
-                              color="yellow"
-                            >
-                              <ActionIcon
-                                size="input-xs"
-                                variant={handleButtonStyle(slot.id, 'ifNeedBe')}
-                                color="yellow"
-                                onClick={() => handleUndecided(slot.id)}
-                              >
-                                <IconQuestionMark size={16} />
-                              </ActionIcon>
-                            </Tooltip>
-                          </div>
-                        </div>
+                        <TimeSlotCard
+                          key={index}
+                          slot={slot}
+                          form={form}
+                          data={data}
+                        />
                       ))}
                     </div>
                   </Card>

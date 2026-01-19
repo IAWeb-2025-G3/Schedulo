@@ -9,12 +9,17 @@ import { notifications } from '@mantine/notifications';
 import { IconSend } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 
-export const ZodTimeSlot = {
+export const ZodComment = z.object({
+  comment: z.string(),
+  name: z.string(),
+});
+
+export const ZodTimeSlot = z.object({
   id: z.string(),
   date: z.string(),
   startTime: z.string(),
   endTime: z.string(),
-};
+});
 
 export type TimeSlot = z.infer<typeof ZodTimeSlot>;
 
@@ -26,17 +31,19 @@ export const ZodVote = z.object({
   name: z.string().min(1).max(60),
   timeSlotId: z.string(),
   value: ZodVoteValue,
+  comment: z.string().optional(),
 });
 export const ZodPoll = z.object({
   id: z.string().optional(),
   title: z.string().min(1, 'Title is required'),
   location: z.string().optional(),
   description: z.string().optional(),
-  dates: z.array(z.object(ZodTimeSlot)),
+  dates: z.array(ZodTimeSlot),
   votes: z.array(ZodVote).optional(),
   createdAt: z.coerce.date(),
   organizerId: z.string(),
   closedAt: z.coerce.date().optional(),
+  comment: ZodComment.optional(),
 });
 export type Poll = z.infer<typeof ZodPoll>;
 
