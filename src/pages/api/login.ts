@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { ORGANIZERS_DIR } from '~/server/routers/organizerRouter';
 
 const COOKIE_NAME = 'organizer_session';
-const SESSION_SECRET =
+export const SESSION_SECRET =
   process.env.ORGANIZER_SESSION_SECRET || 'dev-secret-change-me';
 
 function sign(value: string) {

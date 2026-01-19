@@ -1,3 +1,4 @@
+import tailwindDebugScreens from 'tailwindcss-debug-screens';
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
@@ -8,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {},
   },
-  plugins: [],
 };
 
+export const plugins = [tailwindDebugScreens];
 export default config;

@@ -6,7 +6,8 @@ import { NextConfig } from 'next';
  * @see https://nextjs.org/docs/api-reference/next.config.js/introduction
  */
 export default {
-  output: 'standalone',
+  distDir: 'build',
+  devIndicators: false,
   /**
    * Dynamic configuration available for the browser and server.
    * Note: requires `ssr: true` or a `getInitialProps` in `_app.tsx`

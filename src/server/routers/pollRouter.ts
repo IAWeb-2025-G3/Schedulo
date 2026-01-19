@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import z from 'zod';
 import { TRPCError } from '@trpc/server';
 
-const DATA_DIR = process.env.DATA_DIR ?? path.join(process.cwd(), 'data');
+const DATA_DIR = path.join(process.cwd(), 'data');
 const POLLS_DIR = path.join(DATA_DIR, 'polls');
 function pollPath(id: string) {
   return path.join(POLLS_DIR, `${id}.json`);

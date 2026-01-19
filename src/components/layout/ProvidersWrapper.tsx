@@ -9,6 +9,7 @@ export default function ProvidersWrapper({
 }: {
   children: React.ReactNode;
 }) {
+  console.log(process.env.NODE_ENV);
   return (
     <div
       className={`${

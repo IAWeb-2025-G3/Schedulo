@@ -1,6 +1,5 @@
 import crypto from 'crypto';
-
-const SESSION_SECRET = process.env.ORGANIZER_SESSION_SECRET || '';
+import { SESSION_SECRET } from '~/pages/api/login';
 
 export function verifyOrganizerCookie(token?: string): string | null {
   if (!token || !SESSION_SECRET) return null;
