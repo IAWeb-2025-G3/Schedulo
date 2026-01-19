@@ -220,12 +220,7 @@ const Page: NextPageWithLayout = () => {
                       <Text fw={500}>{organizer.username}</Text>
                     </Table.Td>
                     <Table.Td>
-                      <Group gap="xs">
-                        <Text c="dimmed" style={{ fontFamily: 'monospace' }}>
-                          {visiblePasswords[organizer.id]
-                            ? organizer.password
-                            : '••••••••'}
-                        </Text>
+                      <div className="flex gap-2">
                         <ActionIcon
                           size="sm"
                           variant="subtle"
@@ -237,7 +232,12 @@ const Page: NextPageWithLayout = () => {
                             <IconEye size={16} />
                           )}
                         </ActionIcon>
-                      </Group>
+                        <Text c="dimmed" style={{ fontFamily: 'monospace' }}>
+                          {visiblePasswords[organizer.id]
+                            ? organizer.password
+                            : '••••••••'}
+                        </Text>
+                      </div>
                     </Table.Td>
 
                     <Table.Td>
