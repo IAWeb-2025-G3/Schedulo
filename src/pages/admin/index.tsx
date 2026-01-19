@@ -23,6 +23,8 @@ import { useForm } from '@mantine/form';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
+import { formatDate } from '~/pages/organize/[id]/results';
+import { usePreferences } from '~/components/layout/PreferenceProvider';
 
 type OrganizerFormData = {
   id?: string;
@@ -36,6 +38,8 @@ const Page: NextPageWithLayout = () => {
   const [visiblePasswords, setVisiblePasswords] = useState<
     Record<string, boolean>
   >({});
+
+  const { dateFormat } = usePreferences();
 
   const togglePassword = (id: string) => {
     setVisiblePasswords((prev) => ({
@@ -243,7 +247,7 @@ const Page: NextPageWithLayout = () => {
                     <Table.Td>
                       {organizer.createdAt ? (
                         <Text size="sm" c="dimmed">
-                          {new Date(organizer.createdAt).toLocaleDateString()}
+                          {formatDate(organizer.createdAt, dateFormat)}
                         </Text>
                       ) : (
                         <Text size="sm" c="dimmed">

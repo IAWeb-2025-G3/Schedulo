@@ -19,9 +19,12 @@ import {
 } from '@tabler/icons-react';
 import { trpc } from '~/utils/trpc';
 import { NextPageWithLayout } from '~/pages/_app';
+import { formatDate } from '~/pages/organize/[id]/results';
+import { usePreferences } from '~/components/layout/PreferenceProvider';
 
 const Page: NextPageWithLayout = () => {
   const pollsQuery = trpc.poll.fetchPolls.useQuery();
+  const { dateFormat } = usePreferences();
 
   return (
     <Container size="sm" py="xl">
@@ -90,7 +93,7 @@ const Page: NextPageWithLayout = () => {
                   </Text>
 
                   <Text c="dimmed" size="xs" mt={2}>
-                    Created {poll.createdAt.toLocaleDateString()}
+                    Created {formatDate(poll.createdAt, dateFormat)}
                   </Text>
 
                   {(poll.location || poll.description) && (

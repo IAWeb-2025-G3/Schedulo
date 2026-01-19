@@ -27,11 +27,29 @@ import {
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { NextPageWithLayout } from '~/pages/_app';
+import {
+  DateFormat,
+  usePreferences,
+} from '~/components/layout/PreferenceProvider';
 
 type VoteValue = 'yes' | 'no' | 'ifneedbe';
 
-function formatDate(dateString: string) {
-  return dayjs(dateString).format('MMM DD, YYYY');
+export function formatDate(value: Date | string | number, fmt: DateFormat) {
+  const d = dayjs(value);
+  if (!d.isValid()) return '—';
+
+  switch (fmt) {
+    case 'unix':
+      return String(d.unix());
+    case 'de':
+      return d.format('DD.MM.YYYY');
+    case 'uk':
+      return d.format('DD/MM/YYYY');
+    case 'us':
+      return d.format('MM/DD/YYYY');
+    default:
+      return d.toISOString().split('T')[0];
+  }
 }
 
 function VoteBadge({ value }: { value: VoteValue }) {
@@ -67,6 +85,7 @@ function VoteBadge({ value }: { value: VoteValue }) {
 const Page: NextPageWithLayout = () => {
   const router = useRouter();
   const id = router.query.id as string | undefined;
+  const { dateFormat } = usePreferences();
 
   const {
     data: poll,
@@ -300,7 +319,7 @@ const Page: NextPageWithLayout = () => {
                     Date & Time
                   </Text>
                   <Text fw={700} size="xl">
-                    {formatDate(winner.slot.date)}
+                    {formatDate(winner.slot.date, dateFormat)}
                   </Text>
                   <Text fw={600} size="lg" mt={4}>
                     {winner.slot.startTime} – {winner.slot.endTime}
@@ -393,7 +412,7 @@ const Page: NextPageWithLayout = () => {
                   <Stack gap="sm">
                     <div>
                       <Text size="sm" c="dimmed" mb={4}>
-                        {formatDate(slot.date)}
+                        {formatDate(slot.date, dateFormat)}
                       </Text>
                       <Text fw={700} size="lg">
                         {slot.startTime} – {slot.endTime}
@@ -419,14 +438,7 @@ const Page: NextPageWithLayout = () => {
                     </Text>
 
                     {r.total > 0 ? (
-                      <Paper
-                        p="xs"
-                        withBorder
-                        bg="dimmed"
-                        style={{
-                          backgroundColor: 'var(--mantine-color-dark-6)',
-                        }}
-                      >
+                      <Paper p="xs" withBorder>
                         <Text size="sm" fw={500}>
                           Most common:{' '}
                           <Text
@@ -518,7 +530,7 @@ const Page: NextPageWithLayout = () => {
                         >
                           <Stack gap={2}>
                             <Text size="sm" c="dimmed">
-                              {formatDate(slot.date)}
+                              {formatDate(slot.date, dateFormat)}
                             </Text>
                             <Text>
                               {slot.startTime} – {slot.endTime}

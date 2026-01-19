@@ -2,6 +2,7 @@ import { AppShell, ThemeIcon, Title } from '@mantine/core';
 import type { ReactNode } from 'react';
 import { IconCalendarEvent } from '@tabler/icons-react';
 import Link from 'next/link';
+import { UserMenu } from '~/components/layout/UserMenu';
 
 type DefaultLayoutProps = { children: ReactNode };
 
@@ -9,14 +10,18 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   return (
     <AppShell padding="md" header={{ height: 60 }}>
       <AppShell.Header>
-        <Link href="/">
-          <div className="flex justify-center items-center h-full gap-2">
-            <ThemeIcon variant="transparent">
-              <IconCalendarEvent />
-            </ThemeIcon>
-            <Title>Schedulo</Title>
-          </div>
-        </Link>
+        <div className="flex justify-between items-center h-full gap-2 p-4">
+          <div></div>
+          <Link href="/">
+            <div className="flex items-center gap-2">
+              <ThemeIcon variant="transparent">
+                <IconCalendarEvent />
+              </ThemeIcon>
+              <Title>Schedulo</Title>
+            </div>
+          </Link>
+          <UserMenu />
+        </div>
       </AppShell.Header>
 
       <AppShell.Main>
