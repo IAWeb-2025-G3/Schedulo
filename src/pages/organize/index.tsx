@@ -31,13 +31,13 @@ const Page: NextPageWithLayout = () => {
   const { dateFormat } = usePreferences();
 
   return (
-    <Container size="sm" py="xl">
-      <Stack gap="md">
+    <div style={{ width: '100%', padding: '2rem 0' }}>
+      <Stack gap="md" style={{ maxWidth: '700px', margin: '0 auto', padding: '0 2rem' }}>
         <Group justify="space-between" align="center">
           <div>
-            <Title order={2}>Polls</Title>
+            <Title order={1}>Polls</Title>
             <Text c="dimmed" size="sm">
-              Select a poll to view details.
+              Select a poll to view details
             </Text>
           </div>
 
@@ -133,7 +133,7 @@ const Page: NextPageWithLayout = () => {
             </Paper>
           ))}
       </Stack>
-    </Container>
+    </div>
   );
 };
 
