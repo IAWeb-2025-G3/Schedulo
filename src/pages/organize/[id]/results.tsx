@@ -367,7 +367,7 @@ const Page: NextPageWithLayout = () => {
             <ActionIcon
               size="lg"
               variant="light"
-              onClick={() => router.back()}
+              onClick={() => router.push('/organize')}
               title="Go back"
             >
               <IconArrowLeft />
