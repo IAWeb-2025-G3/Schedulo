@@ -32,6 +32,8 @@ import {
   IconRecycle,
   IconActivity,
   IconTrash,
+  IconSortDescendingNumbers,
+  IconSortAscendingNumbers,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { NextPageWithLayout } from '~/pages/_app';
@@ -117,10 +119,14 @@ function VoteBadge({ value, comment }: { value: VoteValue; comment?: string }) {
   );
 }
 
+type SortColumn = 'date' | 'yes' | 'ifneedbe' | 'no';
+
 const Page: NextPageWithLayout = () => {
   const router = useRouter();
   const id = router.query.id as string | undefined;
   const { dateFormat } = usePreferences();
+  const [sortColumn, setSortColumn] = React.useState<SortColumn>('yes');
+  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
 
   const {
     data: poll,
@@ -274,6 +280,42 @@ const Page: NextPageWithLayout = () => {
     const bk = `${b?.date ?? ''} ${b?.startTime ?? ''}`;
     return ak.localeCompare(bk);
   });
+
+  // Sort slots based on selected column
+  const sortedSlotsForSummary = [...sortedSlots].sort((a, b) => {
+    const aId = String(a?.id ?? '');
+    const bId = String(b?.id ?? '');
+    const aRes = resultsBySlot.get(aId) ?? { yes: 0, ifneedbe: 0, no: 0, total: 0, byName: new Map() };
+    const bRes = resultsBySlot.get(bId) ?? { yes: 0, ifneedbe: 0, no: 0, total: 0, byName: new Map() };
+
+    let comparison = 0;
+    if (sortColumn === 'date') {
+      // Sort by date first, then by time
+      const dateCompare = (a?.date ?? '').localeCompare(b?.date ?? '');
+      if (dateCompare !== 0) {
+        comparison = dateCompare;
+      } else {
+        comparison = (a?.startTime ?? '').localeCompare(b?.startTime ?? '');
+      }
+    } else if (sortColumn === 'yes') {
+      comparison = aRes.yes - bRes.yes;
+    } else if (sortColumn === 'ifneedbe') {
+      comparison = aRes.ifneedbe - bRes.ifneedbe;
+    } else if (sortColumn === 'no') {
+      comparison = aRes.no - bRes.no;
+    }
+
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
+
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('desc');
+    }
+  };
 
   // Calculate winner - slot with most "yes" votes, then most "ifneedbe", then least "no"
   const winner = sortedSlots.reduce<{
@@ -547,95 +589,127 @@ const Page: NextPageWithLayout = () => {
         </Card>
       )}
 
-      {/* Summary cards per slot */}
+      {/* Summary table per votes */}
       <div>
         <Title order={2} mb="md">
           Time Slots Summary
         </Title>
-        <Grid gutter="md">
-          {sortedSlots.map((slot) => {
-            const slotId = String(slot?.id ?? '');
-            const r = resultsBySlot.get(slotId) ?? {
-              yes: 0,
-              ifneedbe: 0,
-              no: 0,
-              total: 0,
-              byName: new Map(),
-            };
-            const best = Math.max(r.yes, r.ifneedbe, r.no);
-            const bestLabel =
-              best === r.yes
-                ? 'yes'
-                : best === r.ifneedbe
-                  ? 'ifneedbe'
-                  : best === r.no
-                    ? 'no'
-                    : '';
-
-            return (
-              <Grid.Col key={slotId} span={{ base: 12, sm: 6, md: 4 }}>
-                <Card withBorder padding="lg" h="100%">
-                  <Stack gap="sm">
-                    <div>
-                      <Text size="sm" c="dimmed" mb={4}>
-                        {formatDate(slot.date, dateFormat)}
-                      </Text>
-                      <Text fw={700} size="lg">
-                        {slot.startTime} – {slot.endTime}
-                      </Text>
-                    </div>
-
-                    <Divider />
-
-                    <Group gap="xs" wrap="wrap">
-                      <Badge color="green" variant="light">
-                        Yes: {r.yes}
-                      </Badge>
-                      <Badge color="yellow" variant="light">
-                        If Need Be: {r.ifneedbe}
-                      </Badge>
-                      <Badge color="red" variant="light">
-                        No: {r.no}
-                      </Badge>
+        <Card withBorder p={0}>
+          <ScrollArea>
+            <Table
+              striped
+              highlightOnHover
+              withTableBorder
+              withColumnBorders
+              horizontalSpacing="md"
+              verticalSpacing="sm"
+            >
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th
+                    style={{
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      position: 'sticky',
+                      left: 0,
+                      minWidth: 140,
+                      width: '150px',
+                    }}
+                    onClick={() => handleSort('date')}
+                  >
+                    <Group gap="xs">
+                      <span style={{ fontWeight: 700 }}>Time Slot</span>
+                      {sortColumn === 'date' && (
+                        sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
+                      )}
                     </Group>
+                  </Table.Th>
+                  <Table.Th
+                    style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
+                    onClick={() => handleSort('yes')}
+                  >
+                    <Group gap="xs">
+                      <span style={{ fontWeight: 700 }}>Yes</span>
+                      {sortColumn === 'yes' && (
+                        sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
+                      )}
+                    </Group>
+                  </Table.Th>
+                  <Table.Th
+                    style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
+                    onClick={() => handleSort('ifneedbe')}
+                  >
+                    <Group gap="xs">
+                      <span style={{ fontWeight: 700 }}>If Need Be</span>
+                      {sortColumn === 'ifneedbe' && (
+                        sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
+                      )}
+                    </Group>
+                  </Table.Th>
+                  <Table.Th
+                    style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
+                    onClick={() => handleSort('no')}
+                  >
+                    <Group gap="xs">
+                      <span style={{ fontWeight: 700 }}>No</span>
+                      {sortColumn === 'no' && (
+                        sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
+                      )}
+                    </Group>
+                  </Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {sortedSlotsForSummary.map((slot) => {
+                  const slotId = String(slot?.id ?? '');
+                  const r = resultsBySlot.get(slotId) ?? {
+                    yes: 0,
+                    ifneedbe: 0,
+                    no: 0,
+                    total: 0,
+                    byName: new Map(),
+                  };
 
-                    <Text size="xs" c="dimmed">
-                      {r.total} {r.total === 1 ? 'vote' : 'votes'} total
-                    </Text>
-
-                    {r.total > 0 ? (
-                      <Paper p="xs" withBorder>
-                        <Text size="sm" fw={500}>
-                          Most common:{' '}
-                          <Text
-                            span
-                            c={
-                              bestLabel === 'yes'
-                                ? 'green'
-                                : bestLabel === 'ifneedbe'
-                                  ? 'yellow'
-                                  : 'red'
-                            }
-                          >
-                            {bestLabel === 'yes'
-                              ? 'Yes'
-                              : bestLabel === 'ifneedbe'
-                                ? 'If Need Be'
-                                : 'No'}
+                  return (
+                    <Table.Tr key={slotId}>
+                      <Table.Td
+                        fw={600}
+                        style={{
+                          position: 'sticky',
+                          left: 0,
+                        }}
+                      >
+                        <Stack gap={2}>
+                          <Text size="sm" c="dimmed">
+                            {formatDate(slot.date, dateFormat)}
                           </Text>
-                        </Text>
-                      </Paper>
-                    ) : (
-                      <Text size="sm" c="dimmed" fs="italic">
-                        No votes for this slot yet.
-                      </Text>
-                    )}
-                  </Stack>
-                </Card>
-              </Grid.Col>
-            );
-          })}
-        </Grid>
+                          <Text>
+                            {slot.startTime} – {slot.endTime}
+                          </Text>
+                        </Stack>
+                      </Table.Td>
+                      <Table.Td>
+                        <Badge color="green" variant="light" size="lg">
+                          {r.yes}
+                        </Badge>
+                      </Table.Td>
+                      <Table.Td>
+                        <Badge color="yellow" variant="light" size="lg">
+                          {r.ifneedbe}
+                        </Badge>
+                      </Table.Td>
+                      <Table.Td>
+                        <Badge color="red" variant="light" size="lg">
+                          {r.no}
+                        </Badge>
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })}
+              </Table.Tbody>
+            </Table>
+          </ScrollArea>
+        </Card>
       </div>
 
       {/* Detailed matrix */}
