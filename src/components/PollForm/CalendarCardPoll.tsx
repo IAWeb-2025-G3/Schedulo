@@ -31,8 +31,8 @@ export const CalendarCardPoll = ({ form }: Props) => {
       {
         id: crypto.randomUUID(),
         date: key,
-        startTime: '00:00',
-        endTime: '24:00',
+        startTime: '10:00',
+        endTime: '11:00',
       },
     ]);
   };
@@ -141,6 +141,7 @@ export const CalendarCardPoll = ({ form }: Props) => {
                             handleChangeTime(slot.id)(time, 'startTime')
                           }
                         />
+                        -
                         <TimePicker
                           value={slot.endTime}
                           onChange={(time) =>
@@ -162,7 +163,7 @@ export const CalendarCardPoll = ({ form }: Props) => {
                         leftSection={<IconPlus size={16} />}
                         variant="outline"
                         onClick={() =>
-                          handleAddTime(timeSlots.date, '00:00', '24:00')
+                          handleAddTime(timeSlots.date, '10:00', '11:00')
                         }
                       >
                         Add Time
