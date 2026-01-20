@@ -10,8 +10,10 @@ import {
   PasswordInput,
 } from '@mantine/core';
 import { NextPageWithLayout } from '~/pages/_app';
+import { useRouter } from 'next/router';
 
 const Page: NextPageWithLayout = () => {
+  const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -74,6 +76,14 @@ const Page: NextPageWithLayout = () => {
 
             <Button type="submit" loading={loading} fullWidth>
               Sign in
+            </Button>
+
+            <Button
+              variant="subtle"
+              fullWidth
+              onClick={() => router.push('/')}
+            >
+              Cancel
             </Button>
           </Stack>
         </form>

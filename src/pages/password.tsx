@@ -9,8 +9,10 @@ import {
   Container,
 } from '@mantine/core';
 import { NextPageWithLayout } from '~/pages/_app';
+import { useRouter } from 'next/router';
 
 const Page: NextPageWithLayout = () => {
+  const router = useRouter();
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +70,14 @@ const Page: NextPageWithLayout = () => {
 
             <Button type="submit" loading={loading} fullWidth>
               Continue
+            </Button>
+
+            <Button
+              variant="subtle"
+              fullWidth
+              onClick={() => router.push('/')}
+            >
+              Cancel
             </Button>
           </Stack>
         </form>
