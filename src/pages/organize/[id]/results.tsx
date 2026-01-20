@@ -34,6 +34,7 @@ import {
   IconTrash,
   IconSortDescendingNumbers,
   IconSortAscendingNumbers,
+  IconEdit,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -392,6 +393,13 @@ const Page: NextPageWithLayout = () => {
           </div>
           <div className="flex gap-2 items-center">
             <>
+              <Button
+                variant="outline"
+                leftSection={<IconEdit size={16} />}
+                onClick={() => router.push(`/organize/${id}/edit`)}
+              >
+                Edit Poll
+              </Button>
               <Button
                 color="red"
                 variant="light"
