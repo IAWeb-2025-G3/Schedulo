@@ -594,122 +594,130 @@ const Page: NextPageWithLayout = () => {
         <Title order={2} mb="md">
           Time Slots Summary
         </Title>
-        <Card withBorder p={0}>
-          <ScrollArea>
-            <Table
-              striped
-              highlightOnHover
-              withTableBorder
-              withColumnBorders
-              horizontalSpacing="md"
-              verticalSpacing="sm"
-            >
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th
-                    style={{
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      position: 'sticky',
-                      left: 0,
-                      minWidth: 140,
-                      width: '150px',
-                    }}
-                    onClick={() => handleSort('date')}
-                  >
-                    <Group gap="xs">
-                      <span style={{ fontWeight: 700 }}>Time Slot</span>
-                      {sortColumn === 'date' && (
-                        sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
-                      )}
-                    </Group>
-                  </Table.Th>
-                  <Table.Th
-                    style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
-                    onClick={() => handleSort('yes')}
-                  >
-                    <Group gap="xs">
-                      <span style={{ fontWeight: 700 }}>Yes</span>
-                      {sortColumn === 'yes' && (
-                        sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
-                      )}
-                    </Group>
-                  </Table.Th>
-                  <Table.Th
-                    style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
-                    onClick={() => handleSort('ifneedbe')}
-                  >
-                    <Group gap="xs">
-                      <span style={{ fontWeight: 700 }}>If Need Be</span>
-                      {sortColumn === 'ifneedbe' && (
-                        sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
-                      )}
-                    </Group>
-                  </Table.Th>
-                  <Table.Th
-                    style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
-                    onClick={() => handleSort('no')}
-                  >
-                    <Group gap="xs">
-                      <span style={{ fontWeight: 700 }}>No</span>
-                      {sortColumn === 'no' && (
-                        sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
-                      )}
-                    </Group>
-                  </Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {sortedSlotsForSummary.map((slot) => {
-                  const slotId = String(slot?.id ?? '');
-                  const r = resultsBySlot.get(slotId) ?? {
-                    yes: 0,
-                    ifneedbe: 0,
-                    no: 0,
-                    total: 0,
-                    byName: new Map(),
-                  };
+        {sortedSlotsForSummary.length === 0 ? (
+          <Card withBorder>
+            <Text c="dimmed" ta="center" py="md">
+              No time slots added yet.
+            </Text>
+          </Card>
+        ) : (
+          <Card withBorder p={0}>
+            <ScrollArea>
+              <Table
+                striped
+                highlightOnHover
+                withTableBorder
+                withColumnBorders
+                horizontalSpacing="md"
+                verticalSpacing="sm"
+              >
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        position: 'sticky',
+                        left: 0,
+                        minWidth: 140,
+                        width: '150px',
+                      }}
+                      onClick={() => handleSort('date')}
+                    >
+                      <Group gap="xs">
+                        <span style={{ fontWeight: 700 }}>Time Slot</span>
+                        {sortColumn === 'date' && (
+                          sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
+                        )}
+                      </Group>
+                    </Table.Th>
+                    <Table.Th
+                      style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
+                      onClick={() => handleSort('yes')}
+                    >
+                      <Group gap="xs">
+                        <span style={{ fontWeight: 700 }}>Yes</span>
+                        {sortColumn === 'yes' && (
+                          sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
+                        )}
+                      </Group>
+                    </Table.Th>
+                    <Table.Th
+                      style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
+                      onClick={() => handleSort('ifneedbe')}
+                    >
+                      <Group gap="xs">
+                        <span style={{ fontWeight: 700 }}>If Need Be</span>
+                        {sortColumn === 'ifneedbe' && (
+                          sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
+                        )}
+                      </Group>
+                    </Table.Th>
+                    <Table.Th
+                      style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
+                      onClick={() => handleSort('no')}
+                    >
+                      <Group gap="xs">
+                        <span style={{ fontWeight: 700 }}>No</span>
+                        {sortColumn === 'no' && (
+                          sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
+                        )}
+                      </Group>
+                    </Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {sortedSlotsForSummary.map((slot) => {
+                    const slotId = String(slot?.id ?? '');
+                    const r = resultsBySlot.get(slotId) ?? {
+                      yes: 0,
+                      ifneedbe: 0,
+                      no: 0,
+                      total: 0,
+                      byName: new Map(),
+                    };
 
-                  return (
-                    <Table.Tr key={slotId}>
-                      <Table.Td
-                        fw={600}
-                        style={{
-                          position: 'sticky',
-                          left: 0,
-                        }}
-                      >
-                        <Stack gap={2}>
-                          <Text size="sm" c="dimmed">
-                            {formatDate(slot.date, dateFormat)}
-                          </Text>
-                          <Text>
-                            {slot.startTime} – {slot.endTime}
-                          </Text>
-                        </Stack>
-                      </Table.Td>
-                      <Table.Td>
-                        <Badge color="green" variant="light" size="lg">
-                          {r.yes}
-                        </Badge>
-                      </Table.Td>
-                      <Table.Td>
-                        <Badge color="yellow" variant="light" size="lg">
-                          {r.ifneedbe}
-                        </Badge>
-                      </Table.Td>
-                      <Table.Td>
-                        <Badge color="red" variant="light" size="lg">
-                          {r.no}
-                        </Badge>
-                      </Table.Td>
-                    </Table.Tr>
-                  );
-                })}
-              </Table.Tbody>
-            </Table>
-          </ScrollArea>
-        </Card>
+                    return (
+                      <Table.Tr key={slotId}>
+                        <Table.Td
+                          fw={600}
+                          style={{
+                            position: 'sticky',
+                            left: 0,
+                          }}
+                        >
+                          <Stack gap={2}>
+                            <Text size="sm" c="dimmed">
+                              {formatDate(slot.date, dateFormat)}
+                            </Text>
+                            <Text>
+                              {slot.startTime} – {slot.endTime}
+                            </Text>
+                          </Stack>
+                        </Table.Td>
+                        <Table.Td>
+                          <Badge color="green" variant="light" size="lg">
+                            {r.yes}
+                          </Badge>
+                        </Table.Td>
+                        <Table.Td>
+                          <Badge color="yellow" variant="light" size="lg">
+                            {r.ifneedbe}
+                          </Badge>
+                        </Table.Td>
+                        <Table.Td>
+                          <Badge color="red" variant="light" size="lg">
+                            {r.no}
+                          </Badge>
+                        </Table.Td>
+                      </Table.Tr>
+                    );
+                  })}
+                </Table.Tbody>
+              </Table>
+            </ScrollArea>
+          </Card>
+        )}
       </div>
 
       {/* Detailed matrix */}
@@ -721,7 +729,7 @@ const Page: NextPageWithLayout = () => {
         {voters.length === 0 ? (
           <Card withBorder>
             <Text c="dimmed" ta="center" py="md">
-              No votes yet. Be the first to vote!
+              No votes yet.
             </Text>
           </Card>
         ) : (
