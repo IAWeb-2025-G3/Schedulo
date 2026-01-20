@@ -36,6 +36,7 @@ import {
   IconSortAscendingNumbers,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { NextPageWithLayout } from '~/pages/_app';
 import {
   DateFormat,
@@ -47,10 +48,13 @@ import { useDisclosure } from '@mantine/hooks';
 import { TableComment } from '~/components/results/TableComment';
 import { modals } from '@mantine/modals';
 
+dayjs.extend(utc);
+
 type VoteValue = 'yes' | 'no' | 'ifneedbe';
 
 export function formatDate(value: Date | string | number, fmt: DateFormat) {
-  const d = dayjs(value);
+  // For string dates in YYYY-MM-DD format, parse as UTC to avoid timezone offset issues
+  const d = typeof value === 'string' ? dayjs.utc(value) : dayjs(value);
   if (!d.isValid()) return '—';
 
   switch (fmt) {
