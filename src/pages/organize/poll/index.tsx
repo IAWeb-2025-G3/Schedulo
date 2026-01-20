@@ -2,11 +2,11 @@ import { CalendarCardPoll } from '~/components/PollForm/CalendarCardPoll';
 import type { NextPageWithLayout } from '../../_app';
 import { EventCardPoll } from '~/components/PollForm/EventCardPoll';
 import { useForm } from '@mantine/form';
-import { Button } from '@mantine/core';
+import { ActionIcon, Button, Text, Title } from '@mantine/core';
 import z from 'zod';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
-import { IconSend } from '@tabler/icons-react';
+import { IconArrowLeft, IconSend } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 
 export const ZodComment = z.object({
@@ -86,6 +86,22 @@ const Page: NextPageWithLayout = () => {
       onSubmit={form.onSubmit((values) => handleSubmit(values))}
       className="flex flex-col py-8 w-fit gap-4"
     >
+      <div>
+        <div className="flex gap-4 items-center">
+          <ActionIcon
+            size="lg"
+            variant="light"
+            onClick={() => router.back()}
+            title="Go back"
+          >
+            <IconArrowLeft />
+          </ActionIcon>
+          <Title order={1}>Create Poll</Title>
+        </div>
+        <Text c="dimmed" size="sm">
+          Set up a new poll with custom time slots and details
+        </Text>
+      </div>
       <div className="flex flex-col lg:flex-row gap-4">
         <EventCardPoll form={form} />
         <CalendarCardPoll form={form} />

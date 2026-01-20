@@ -92,9 +92,7 @@ export function UserMenu() {
             <Menu.Label>
               <Group gap="xs">
                 <IconUser size={16} />
-                <Text size="sm" fw={500}>
-                  {currentUser.isAdmin ? currentUser.username : `Organizer: ${currentUser.username}`}
-                </Text>
+                {currentUser.isAdmin ? currentUser.username : `Organizer: ${currentUser.username}`}
               </Group>
             </Menu.Label>
 
