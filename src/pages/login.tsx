@@ -8,6 +8,7 @@ import {
   Container,
   TextInput,
   PasswordInput,
+  Tooltip,
 } from '@mantine/core';
 import { NextPageWithLayout } from '~/pages/_app';
 import { useRouter } from 'next/router';
@@ -74,9 +75,17 @@ const Page: NextPageWithLayout = () => {
               </Text>
             )}
 
-            <Button type="submit" loading={loading} fullWidth>
-              Sign in
-            </Button>
+            <Tooltip
+              color="yellow"
+              disabled={username.trim() !== '' && password.trim() !== ''}
+              label={<Text>{!username.trim() ? 'Please enter your username!' : 'Please enter your password!'}</Text>}
+              openDelay={500}
+              withArrow
+            >
+              <Button type="submit" loading={loading} fullWidth disabled={!username.trim() || !password.trim() || loading}>
+                Sign in
+              </Button>
+            </Tooltip>
 
             <Button
               variant="subtle"

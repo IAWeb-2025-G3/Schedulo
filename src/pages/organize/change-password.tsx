@@ -8,6 +8,7 @@ import {
   Container,
   PasswordInput,
   Alert,
+  Tooltip,
 } from '@mantine/core';
 import { NextPageWithLayout } from '~/pages/_app';
 import { trpc } from '~/utils/trpc';
@@ -153,9 +154,17 @@ const Page: NextPageWithLayout = () => {
               onChange={(e) => setConfirmPassword(e.currentTarget.value)}
             />
 
-            <Button type="submit" fullWidth loading={updateOrganizer.isPending}>
-              Change Password
-            </Button>
+            <Tooltip
+              color="yellow"
+              disabled={currentPassword.trim() !== '' && newPassword.trim() !== '' && confirmPassword.trim() !== ''}
+              label={<Text>Please fill in all password fields!</Text>}
+              openDelay={500}
+              withArrow
+            >
+              <Button type="submit" fullWidth loading={updateOrganizer.isPending} disabled={!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim() || updateOrganizer.isPending}>
+                Change Password
+              </Button>
+            </Tooltip>
 
             <Button
               variant="subtle"

@@ -12,6 +12,7 @@ import {
   Stack,
   Group,
   ScrollArea,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconEdit,
@@ -336,12 +337,21 @@ const Page: NextPageWithLayout = () => {
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                loading={createOrganizer.isPending || updateOrganizer.isPending}
+              <Tooltip
+                color="yellow"
+                disabled={form.values.username.trim() !== '' && (editingId ? true : form.values.password.trim() !== '')}
+                label={<Text>{!form.values.username.trim() ? 'Please enter a username!' : 'Please enter a password!'}</Text>}
+                openDelay={500}
+                withArrow
               >
-                {editingId ? 'Update' : 'Create'}
-              </Button>
+                <Button
+                  type="submit"
+                  loading={createOrganizer.isPending || updateOrganizer.isPending}
+                  disabled={!form.values.username.trim() || (editingId ? false : !form.values.password.trim())}
+                >
+                  {editingId ? 'Update' : 'Create'}
+                </Button>
+              </Tooltip>
             </Group>
           </Stack>
         </form>

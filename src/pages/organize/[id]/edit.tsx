@@ -3,7 +3,7 @@ import { CalendarCardPoll } from '~/components/PollForm/CalendarCardPoll';
 import type { NextPageWithLayout } from '../../_app';
 import { EventCardPoll } from '~/components/PollForm/EventCardPoll';
 import { useForm } from '@mantine/form';
-import { ActionIcon, Button, Text, Title, Loader, Alert, Stack } from '@mantine/core';
+import { ActionIcon, Button, Text, Title, Loader, Alert, Stack, Tooltip } from '@mantine/core';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
 import { IconArrowLeft, IconSend, IconAlertCircle } from '@tabler/icons-react';
@@ -138,13 +138,22 @@ const Page: NextPageWithLayout = () => {
         <EventCardPoll form={form} />
         <CalendarCardPoll form={form} />
       </div>
-      <Button
-        type="submit"
-        leftSection={<IconSend size={16} />}
-        loading={storePoll.isPending}
+      <Tooltip
+        color="yellow"
+        disabled={form.values.title.trim() !== '' && form.values.dates.length > 0}
+        label={<Text>{!form.values.title.trim() ? 'Please enter a title!' : 'Please add at least one time slot!'}</Text>}
+        openDelay={500}
+        withArrow
       >
-        Save Changes
-      </Button>
+        <Button
+          type="submit"
+          leftSection={<IconSend size={16} />}
+          loading={storePoll.isPending}
+          disabled={!form.values.title.trim() || form.values.dates.length === 0}
+        >
+          Save Changes
+        </Button>
+      </Tooltip>
     </form>
   );
 };
