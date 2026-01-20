@@ -1,7 +1,8 @@
 import type * as trpcNext from '@trpc/server/adapters/next';
-import { verifyOrgCookie } from '~/server/auth/organizerSession';
+import { verifyOrgCookie, verifyAdminCookie } from '~/server/auth/organizerSession';
 interface CreateContextOptions {
   organizerId: string | null;
+  isAdmin: boolean;
 }
 
 /**
@@ -11,6 +12,7 @@ interface CreateContextOptions {
 export async function createContextInner(opts: CreateContextOptions) {
   return {
     organizerId: opts.organizerId,
+    isAdmin: opts.isAdmin,
   };
 }
 
@@ -22,12 +24,16 @@ export type Context = Awaited<ReturnType<typeof createContextInner>>;
 export async function createContext(
   opts: trpcNext.CreateNextContextOptions,
 ): Promise<Context> {
-  // NextApiRequest in Pages Router has parsed cookies here:
-  const token = opts.req.cookies.organizer_session;
-  if (!token) {
-    return await createContextInner({ organizerId: null });
-  }
-  const organizerId = await verifyOrgCookie(token);
+  // Check admin session
+  const adminToken = opts.req.cookies.admin_session;
+  const isAdmin = adminToken ? !!(await verifyAdminCookie(adminToken)) : false;
 
-  return await createContextInner({ organizerId: organizerId?.orgId || null });
+  // Check organizer session
+  const organizerToken = opts.req.cookies.organizer_session;
+  if (!organizerToken) {
+    return await createContextInner({ organizerId: null, isAdmin });
+  }
+  const organizerId = await verifyOrgCookie(organizerToken);
+
+  return await createContextInner({ organizerId: organizerId?.orgId || null, isAdmin });
 }

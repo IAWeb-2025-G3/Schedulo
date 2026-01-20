@@ -161,4 +161,54 @@ export const organizerRouter = router({
       const organizer = ZodOrganizer.parse(JSON.parse(content));
       return organizer;
     }),
+
+  getCurrentOrganizer: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.organizerId) {
+      return null;
+    }
+    try {
+      await ensureDir();
+      const content = await fs.readFile(organizerPath(ctx.organizerId), 'utf8');
+      const organizer = ZodOrganizer.parse(JSON.parse(content));
+      // Don't return password
+      return {
+        id: organizer.id,
+        username: organizer.username,
+        createdAt: organizer.createdAt,
+        updatedAt: organizer.updatedAt,
+      };
+    } catch {
+      return null;
+    }
+  }),
+
+  getCurrentUser: publicProcedure.query(async ({ ctx }) => {
+    // Check if admin
+    if (ctx.isAdmin) {
+      return {
+        username: 'Admin',
+        isAdmin: true,
+      };
+    }
+    
+    // Check if organizer
+    if (!ctx.organizerId) {
+      return null;
+    }
+    try {
+      await ensureDir();
+      const content = await fs.readFile(organizerPath(ctx.organizerId), 'utf8');
+      const organizer = ZodOrganizer.parse(JSON.parse(content));
+      // Don't return password
+      return {
+        id: organizer.id,
+        username: organizer.username,
+        isAdmin: false,
+        createdAt: organizer.createdAt,
+        updatedAt: organizer.updatedAt,
+      };
+    } catch {
+      return null;
+    }
+  }),
 });
