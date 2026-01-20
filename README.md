@@ -70,8 +70,10 @@ docker-compose down
 
 ### Environment Variables
 
-In order to be able to create organiser accounts by accessing the admin page, you need to define an ADMIN_PASSWORD environment variable that is then used to access the page.
-
+The application is enforcing the following environment variables that need to be set:
+- ADMIN_PASSWORD (string)
+- ORGANIZER_SESSION_SECRET (string)
+- NODE_ENV ("development", "test" or "production")
 
 ## License
 
