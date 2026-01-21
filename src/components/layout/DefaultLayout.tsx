@@ -10,8 +10,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   return (
     <AppShell padding="md" header={{ height: 60 }}>
       <AppShell.Header>
-        <div className="flex justify-between items-center h-full gap-2 p-4">
-          <div></div>
+        <div className="relative flex items-center justify-center h-full p-4">
           <Link href="/">
             <div className="flex items-center gap-2">
               <ThemeIcon variant="transparent">
@@ -20,7 +19,9 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
               <Title>Schedulo</Title>
             </div>
           </Link>
-          <UserMenu />
+          <div className="absolute right-4">
+            <UserMenu />
+          </div>
         </div>
       </AppShell.Header>
 
