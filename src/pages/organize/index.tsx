@@ -108,15 +108,16 @@ const Page: NextPageWithLayout = () => {
                     </ThemeIcon>
                   </div>
 
-                  <Text c="dimmed" size="xs" mt={2}>
-                    Created {formatDate(poll.createdAt, dateFormat)}
-                  </Text>
-
                   {(poll.location || poll.description) && (
-                    <Text c="dimmed" size="sm" lineClamp={2} mt={6}>
+                    <Text c="dimmed" size="sm" lineClamp={2} mt={2}>
                       {poll.location ?? poll.description}
                     </Text>
                   )}
+
+                  <Text c="dimmed" size="xs" mt={6}>
+                    Created {formatDate(poll.createdAt, dateFormat)}
+                    {poll.closedAt && ` • Closed ${formatDate(poll.closedAt, dateFormat)}`}
+                  </Text>
                 </div>
 
                 <ActionIcon
