@@ -90,10 +90,19 @@ export function UserMenu() {
 
           <Menu.Dropdown>
             <Menu.Label>
-              <Group gap="xs">
-                <IconUser size={16} />
-                {currentUser.isAdmin ? currentUser.username : `Organizer: ${currentUser.username}`}
-              </Group>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                <IconUser size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  {currentUser.isAdmin ? (
+                    <span>{currentUser.username}</span>
+                  ) : (
+                    <>
+                      <span>Organizer:</span>
+                      <span style={{ wordBreak: 'break-word' }}>{currentUser.username}</span>
+                    </>
+                  )}
+                </div>
+              </div>
             </Menu.Label>
 
             <Divider my="xs" />
