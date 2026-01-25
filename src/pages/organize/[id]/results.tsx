@@ -7,19 +7,18 @@ import {
   Text,
   Badge,
   Table,
-  Grid,
   Stack,
   Group,
   Loader,
   Alert,
   ScrollArea,
-  Paper,
   Divider,
   ActionIcon,
   Button,
   ThemeIcon,
   Indicator,
   Popover,
+  Menu,
 } from '@mantine/core';
 import {
   IconCheck,
@@ -35,6 +34,7 @@ import {
   IconSortDescendingNumbers,
   IconSortAscendingNumbers,
   IconEdit,
+  IconDotsVertical,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -131,7 +131,9 @@ const Page: NextPageWithLayout = () => {
   const id = router.query.id as string | undefined;
   const { dateFormat } = usePreferences();
   const [sortColumn, setSortColumn] = React.useState<SortColumn>('yes');
-  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>('desc');
+  const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>(
+    'desc',
+  );
 
   const {
     data: poll,
@@ -290,8 +292,20 @@ const Page: NextPageWithLayout = () => {
   const sortedSlotsForSummary = [...sortedSlots].sort((a, b) => {
     const aId = String(a?.id ?? '');
     const bId = String(b?.id ?? '');
-    const aRes = resultsBySlot.get(aId) ?? { yes: 0, ifneedbe: 0, no: 0, total: 0, byName: new Map() };
-    const bRes = resultsBySlot.get(bId) ?? { yes: 0, ifneedbe: 0, no: 0, total: 0, byName: new Map() };
+    const aRes = resultsBySlot.get(aId) ?? {
+      yes: 0,
+      ifneedbe: 0,
+      no: 0,
+      total: 0,
+      byName: new Map(),
+    };
+    const bRes = resultsBySlot.get(bId) ?? {
+      yes: 0,
+      ifneedbe: 0,
+      no: 0,
+      total: 0,
+      byName: new Map(),
+    };
 
     let comparison = 0;
     if (sortColumn === 'date') {
@@ -393,21 +407,6 @@ const Page: NextPageWithLayout = () => {
           </div>
           <div className="flex gap-2 items-center">
             <>
-              <Button
-                variant="outline"
-                leftSection={<IconEdit size={16} />}
-                onClick={() => router.push(`/organize/${id}/edit`)}
-              >
-                Edit Poll
-              </Button>
-              <Button
-                color="red"
-                variant="light"
-                leftSection={<IconTrash size={16} />}
-                onClick={handleDelete}
-              >
-                Delete Poll
-              </Button>
               <ActionIcon
                 variant="outline"
                 className="sm:!hidden"
@@ -463,6 +462,30 @@ const Page: NextPageWithLayout = () => {
                 url={`${window.location.origin}/vote/${poll.id}`}
               />
             )}
+            <Menu position="bottom-end">
+              <Menu.Target>
+                <ActionIcon variant="light" size="lg">
+                  <IconDotsVertical size={16} />
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item
+                  variant="outline"
+                  leftSection={<IconEdit size={16} />}
+                  onClick={() => router.push(`/organize/${id}/edit`)}
+                >
+                  Edit Poll
+                </Menu.Item>
+                <Menu.Item
+                  color="red"
+                  variant="light"
+                  leftSection={<IconTrash size={16} />}
+                  onClick={handleDelete}
+                >
+                  Delete Poll
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </div>
         </div>
         <Text c="dimmed" size="sm">
@@ -638,42 +661,90 @@ const Page: NextPageWithLayout = () => {
                     >
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>Time Slot</span>
-                        {sortColumn === 'date' && (
-                          sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
-                        )}
+                        {sortColumn === 'date' &&
+                          (sortDirection === 'asc' ? (
+                            <IconSortAscendingNumbers
+                              size={16}
+                              title="Sorted Ascending"
+                            />
+                          ) : (
+                            <IconSortDescendingNumbers
+                              size={16}
+                              title="Sorted Descending"
+                            />
+                          ))}
                       </Group>
                     </Table.Th>
                     <Table.Th
-                      style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        width: '150px',
+                      }}
                       onClick={() => handleSort('yes')}
                     >
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>Yes</span>
-                        {sortColumn === 'yes' && (
-                          sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
-                        )}
+                        {sortColumn === 'yes' &&
+                          (sortDirection === 'asc' ? (
+                            <IconSortAscendingNumbers
+                              size={16}
+                              title="Sorted Ascending"
+                            />
+                          ) : (
+                            <IconSortDescendingNumbers
+                              size={16}
+                              title="Sorted Descending"
+                            />
+                          ))}
                       </Group>
                     </Table.Th>
                     <Table.Th
-                      style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        width: '150px',
+                      }}
                       onClick={() => handleSort('ifneedbe')}
                     >
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>If Need Be</span>
-                        {sortColumn === 'ifneedbe' && (
-                          sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
-                        )}
+                        {sortColumn === 'ifneedbe' &&
+                          (sortDirection === 'asc' ? (
+                            <IconSortAscendingNumbers
+                              size={16}
+                              title="Sorted Ascending"
+                            />
+                          ) : (
+                            <IconSortDescendingNumbers
+                              size={16}
+                              title="Sorted Descending"
+                            />
+                          ))}
                       </Group>
                     </Table.Th>
                     <Table.Th
-                      style={{ cursor: 'pointer', userSelect: 'none', width: '150px' }}
+                      style={{
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        width: '150px',
+                      }}
                       onClick={() => handleSort('no')}
                     >
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>No</span>
-                        {sortColumn === 'no' && (
-                          sortDirection === 'asc' ? <IconSortAscendingNumbers size={16} title="Sorted Ascending" /> : <IconSortDescendingNumbers size={16} title="Sorted Descending" />
-                        )}
+                        {sortColumn === 'no' &&
+                          (sortDirection === 'asc' ? (
+                            <IconSortAscendingNumbers
+                              size={16}
+                              title="Sorted Ascending"
+                            />
+                          ) : (
+                            <IconSortDescendingNumbers
+                              size={16}
+                              title="Sorted Descending"
+                            />
+                          ))}
                       </Group>
                     </Table.Th>
                   </Table.Tr>
