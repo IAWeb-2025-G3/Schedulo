@@ -44,6 +44,7 @@ export const ZodPoll = z.object({
   organizerId: z.string(),
   closedAt: z.coerce.date().optional(),
   comment: ZodComment.array().optional(),
+  active: z.boolean().optional(),
 });
 export type Poll = z.infer<typeof ZodPoll>;
 
@@ -108,8 +109,16 @@ const Page: NextPageWithLayout = () => {
       </div>
       <Tooltip
         color="yellow"
-        disabled={form.values.title.trim() !== '' && form.values.dates.length > 0}
-        label={<Text>{!form.values.title.trim() ? 'Please enter a title!' : 'Please add at least one time slot!'}</Text>}
+        disabled={
+          form.values.title.trim() !== '' && form.values.dates.length > 0
+        }
+        label={
+          <Text>
+            {!form.values.title.trim()
+              ? 'Please enter a title!'
+              : 'Please add at least one time slot!'}
+          </Text>
+        }
         openDelay={500}
         withArrow
       >

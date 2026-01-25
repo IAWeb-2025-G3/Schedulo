@@ -1,16 +1,19 @@
 import { ActionIcon, Button } from '@mantine/core';
 import { IconShare } from '@tabler/icons-react';
+import { Poll } from '~/pages/organize/poll';
 
 type ShareButtonProps = {
   title?: string;
   text?: string;
   url?: string;
+  poll: Poll;
 };
 
 export const ShareButton = ({
   title = document.title,
   text,
   url = window.location.href,
+  poll,
 }: ShareButtonProps) => {
   const canShare =
     typeof navigator !== 'undefined' && typeof navigator.share === 'function';
@@ -33,6 +36,7 @@ export const ShareButton = ({
   return (
     <>
       <ActionIcon
+        disabled={!poll.active}
         className="sm:!hidden"
         size="lg"
         onClick={handleShare}
@@ -41,6 +45,7 @@ export const ShareButton = ({
         <IconShare size={16} />
       </ActionIcon>
       <Button
+        disabled={!poll.active}
         leftSection={<IconShare size={16} />}
         onClick={handleShare}
         className="!hidden sm:!block"

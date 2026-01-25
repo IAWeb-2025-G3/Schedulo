@@ -46,6 +46,26 @@ const Page: NextPageWithLayout = () => {
     );
   }
 
+  if (!fetchPoll.data?.active) {
+    return (
+      <div className="flex flex-col gap-2">
+        <Alert
+          icon={<IconAlertCircle size={16} />}
+          title="Poll Closed"
+          color="yellow"
+        >
+          This poll has been temporarily disabled and is not accepting votes.
+        </Alert>
+        <Button
+          onClick={() => router.push('/')}
+          leftSection={<IconArrowBack size={16} />}
+        >
+          Return to Home
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col lg:flex-row py-8 w-fit gap-4">
       {fetchPoll.data && <EventCardVote data={fetchPoll.data} />}

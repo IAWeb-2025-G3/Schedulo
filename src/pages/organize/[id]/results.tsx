@@ -35,6 +35,8 @@ import {
   IconSortAscendingNumbers,
   IconEdit,
   IconDotsVertical,
+  IconPlayerPlayFilled,
+  IconPlayerPauseFilled,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -157,11 +159,35 @@ const Page: NextPageWithLayout = () => {
     },
   });
 
+  const startPollMutation = trpc.poll.startPoll.useMutation({
+    onSuccess: () => {
+      utils.poll.fetchPoll.invalidate({ id: id ?? '' });
+    },
+  });
+
+  const pausePollMutation = trpc.poll.pausePoll.useMutation({
+    onSuccess: () => {
+      utils.poll.fetchPoll.invalidate({ id: id ?? '' });
+    },
+  });
+
   const deletePollMutation = trpc.poll.deletePoll.useMutation({
     onSuccess: () => {
       router.push('/organize');
     },
   });
+
+  const startPoll = () => {
+    startPollMutation.mutateAsync({
+      id: id ?? '',
+    });
+  };
+
+  const pausePoll = () => {
+    pausePollMutation.mutateAsync({
+      id: id ?? '',
+    });
+  };
 
   const closePoll = () => {
     closePollMutation.mutateAsync({
@@ -398,16 +424,45 @@ const Page: NextPageWithLayout = () => {
                 variant={poll.closedAt ? 'transparent' : 'light'}
                 title="Closed"
                 radius="lg"
-                className={cn(poll.closedAt ? '' : 'animate-pulse')}
-                color={poll.closedAt ? undefined : 'green'}
+                className={cn(
+                  poll.closedAt ? '' : poll.active ? 'animate-pulse' : '',
+                )}
+                color={
+                  poll.closedAt ? undefined : poll.active ? 'green' : 'yellow'
+                }
               >
-                {poll.closedAt ? <IconLock /> : <IconActivity />}
+                {poll.closedAt ? (
+                  <IconLock size={20} />
+                ) : poll.active ? (
+                  <IconActivity size={20} />
+                ) : (
+                  <IconPlayerPauseFilled size={20} />
+                )}
               </ThemeIcon>
             </div>
           </div>
           <div className="flex gap-2 items-center">
             <>
               <ActionIcon
+                variant="filled"
+                size="lg"
+                onClick={poll.active ? pausePoll : startPoll}
+                title={poll.active ? 'Pause Poll' : 'Start Poll'}
+                loading={
+                  poll.active
+                    ? pausePollMutation.isPending
+                    : startPollMutation.isPending
+                }
+              >
+                {poll.active ? (
+                  <IconPlayerPauseFilled size={20} />
+                ) : (
+                  <IconPlayerPlayFilled size={20} />
+                )}
+              </ActionIcon>
+
+              <ActionIcon
+                disabled={!poll.active}
                 variant="outline"
                 className="sm:!hidden"
                 size="lg"
@@ -453,10 +508,12 @@ const Page: NextPageWithLayout = () => {
                 title="Poll Results"
                 text="Check out the results of this poll!"
                 url={`${window.location.origin}/results/${poll.id}`}
+                poll={poll}
               />
             )}
             {!poll.closedAt && (
               <ShareButton
+                poll={poll}
                 title="Poll"
                 text="Vote in this poll!"
                 url={`${window.location.origin}/vote/${poll.id}`}

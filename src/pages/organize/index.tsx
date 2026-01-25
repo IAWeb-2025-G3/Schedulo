@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import {
-  Container,
   Title,
   Text,
   Paper,
@@ -18,6 +17,7 @@ import {
   IconAlertCircle,
   IconChevronRight,
   IconLock,
+  IconPlayerPauseFilled,
   IconPlus,
 } from '@tabler/icons-react';
 import { trpc } from '~/utils/trpc';
@@ -32,7 +32,10 @@ const Page: NextPageWithLayout = () => {
 
   return (
     <div style={{ width: '100%', padding: '2rem 0' }}>
-      <Stack gap="md" style={{ maxWidth: '700px', margin: '0 auto', padding: '0 2rem' }}>
+      <Stack
+        gap="md"
+        style={{ maxWidth: '700px', margin: '0 auto', padding: '0 2rem' }}
+      >
         <Group justify="space-between" align="center">
           <div>
             <Title order={1}>Polls</Title>
@@ -101,10 +104,24 @@ const Page: NextPageWithLayout = () => {
                       variant={poll.closedAt ? 'transparent' : 'light'}
                       title="Closed"
                       radius="lg"
-                      className={cn(poll.closedAt ? '' : 'animate-pulse')}
-                      color={poll.closedAt ? undefined : 'green'}
+                      className={cn(
+                        poll.closedAt ? '' : poll.active ? 'animate-pulse' : '',
+                      )}
+                      color={
+                        poll.closedAt
+                          ? undefined
+                          : poll.active
+                            ? 'green'
+                            : 'yellow'
+                      }
                     >
-                      {poll.closedAt ? <IconLock /> : <IconActivity />}
+                      {poll.closedAt ? (
+                        <IconLock size={12} />
+                      ) : poll.active ? (
+                        <IconActivity size={12} />
+                      ) : (
+                        <IconPlayerPauseFilled size={12} />
+                      )}
                     </ThemeIcon>
                   </div>
 
@@ -116,7 +133,8 @@ const Page: NextPageWithLayout = () => {
 
                   <Text c="dimmed" size="xs" mt={6}>
                     Created {formatDate(poll.createdAt, dateFormat)}
-                    {poll.closedAt && ` • Closed ${formatDate(poll.closedAt, dateFormat)}`}
+                    {poll.closedAt &&
+                      ` • Closed ${formatDate(poll.closedAt, dateFormat)}`}
                   </Text>
                 </div>
 
