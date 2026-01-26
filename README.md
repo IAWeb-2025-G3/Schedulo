@@ -78,12 +78,12 @@ The application is enforcing the following environment variables that need to be
   openssl rand -base64 32
   
   # Or use any random string with at least 32 characters:
-  ORGANIZER_SESSION_SECRET=your-super-secret-random-string-with-min-32-chars
+  ORGANIZER_SESSION_SECRET=my-super-secret-random-string-with-min-32-chars
   ```
 - `NODE_ENV` ("`development`", "`test`" or "`production`"):  
 Determines the runtime environment. This is automatically set by Next.js when using `pnpm dev` ("`development`") or `pnpm start` ("`production`"). For manual deployments, it needs to be set explicitly in the environment or `.env` file.
 
-## Alternative Deployment Options
+## Alternative Deployment
 
 For production environments requiring higher availability and scalability, consider these alternatives:
 
