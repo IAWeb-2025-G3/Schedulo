@@ -93,11 +93,13 @@ Store poll data in Amazon S3 for improved persistence and scalability.
 
 Requires modifying the data persistence layer to use AWS SDK for S3 instead of local file system operations.
 
-#### Cloud Provider with Docker Volume Support
+#### Cloud Provider with Container Support
 
 Deploy on managed container platforms such as AWS ECS, Google Cloud Run or Azure Container Instances.
 
 Use platform-specific volume mounting for the `/data` directory or integrate with cloud storage services for enhanced durability.
+
+Alternatively, restructure persistence slighlty with Kubernetes and Persistent Volumes on the same platforms.
 
 ## License
 
