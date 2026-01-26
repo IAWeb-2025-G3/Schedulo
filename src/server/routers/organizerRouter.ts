@@ -184,13 +184,13 @@ export const organizerRouter = router({
 
   getCurrentUser: publicProcedure.query(async ({ ctx }) => {
     // Check if admin
-    if (ctx.isAdmin) {
+    if (ctx.isAdmin && !ctx.organizerId) {
       return {
         username: 'Admin',
         isAdmin: true,
       };
     }
-    
+
     // Check if organizer
     if (!ctx.organizerId) {
       return null;
@@ -203,7 +203,7 @@ export const organizerRouter = router({
       return {
         id: organizer.id,
         username: organizer.username,
-        isAdmin: false,
+        isAdmin: ctx.isAdmin,
         createdAt: organizer.createdAt,
         updatedAt: organizer.updatedAt,
       };

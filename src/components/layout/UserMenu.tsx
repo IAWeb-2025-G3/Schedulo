@@ -1,4 +1,4 @@
-import { ActionIcon, Avatar, Divider, Group, Menu, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Divider, Group, Menu, Text, Tooltip } from '@mantine/core';
 import { useMantineColorScheme } from '@mantine/core';
 import {
   IconCalendar,
@@ -19,6 +19,7 @@ import { trpc } from '~/utils/trpc';
 import { useRouter } from 'next/router';
 import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
+import { UserMenuItem } from '~/components/layout/UserMenuItem';
 
 export const DATE_FORMAT_KEY = 'date_format';
 
@@ -81,7 +82,17 @@ export function UserMenu() {
       {currentUser && (
         <Menu shadow="md" width={260} withinPortal position="bottom-end">
           <Menu.Target>
-            <Tooltip label={currentUser.isAdmin ? currentUser.username : `Organizer: ${currentUser.username}`} withArrow>
+            <Tooltip
+              label={
+                <div className="flex flex-col gap-0.5">
+                  {currentUser.isAdmin && <Text>Admin</Text>}
+                  {currentUser.username !== 'Admin' && (
+                    <Text>{`Organizer: ${currentUser.username}`}</Text>
+                  )}
+                </div>
+              }
+              withArrow
+            >
               <ActionIcon variant="subtle" size="lg" aria-label="User menu">
                 <IconUser size={18} />
               </ActionIcon>
@@ -89,21 +100,7 @@ export function UserMenu() {
           </Menu.Target>
 
           <Menu.Dropdown>
-            <Menu.Label>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                <IconUser size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  {currentUser.isAdmin ? (
-                    <span>{currentUser.username}</span>
-                  ) : (
-                    <>
-                      <span>Organizer:</span>
-                      <span style={{ wordBreak: 'break-word' }}>{currentUser.username}</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </Menu.Label>
+            <UserMenuItem currentUser={currentUser} />
 
             <Divider my="xs" />
 
@@ -137,51 +134,55 @@ export function UserMenu() {
           </Tooltip>
         </Menu.Target>
 
-      <Menu.Dropdown>
-        <Menu.Label>Appearance</Menu.Label>
+        <Menu.Dropdown>
+          <Menu.Label>Appearance</Menu.Label>
 
-        <Menu.Item
-          leftSection={<IconSunMoon size={16} />}
-          rightSection={colorScheme === 'auto' ? <IconCheck size={16} /> : null}
-          onClick={() => clearColorScheme()}
-        >
-          System
-        </Menu.Item>
-
-        <Menu.Item
-          leftSection={<IconSun size={16} />}
-          rightSection={
-            colorScheme === 'light' ? <IconCheck size={16} /> : null
-          }
-          onClick={() => setColorScheme('light')}
-        >
-          Light
-        </Menu.Item>
-
-        <Menu.Item
-          leftSection={<IconMoon size={16} />}
-          rightSection={colorScheme === 'dark' ? <IconCheck size={16} /> : null}
-          onClick={() => setColorScheme('dark')}
-        >
-          Dark
-        </Menu.Item>
-
-        <Divider my="xs" />
-
-        <Menu.Label>Date format</Menu.Label>
-
-        {(['ISO 8601', 'de', 'uk', 'us', 'unix'] as const).map((fmt) => (
           <Menu.Item
-            key={fmt}
-            leftSection={<IconCalendar size={16} />}
-            rightSection={dateFormat === fmt ? <IconCheck size={16} /> : null}
-            onClick={() => setDateFormat(fmt)}
+            leftSection={<IconSunMoon size={16} />}
+            rightSection={
+              colorScheme === 'auto' ? <IconCheck size={16} /> : null
+            }
+            onClick={() => clearColorScheme()}
           >
-            {formatLabel(fmt)}
+            System
           </Menu.Item>
-        ))}
-      </Menu.Dropdown>
-    </Menu>
+
+          <Menu.Item
+            leftSection={<IconSun size={16} />}
+            rightSection={
+              colorScheme === 'light' ? <IconCheck size={16} /> : null
+            }
+            onClick={() => setColorScheme('light')}
+          >
+            Light
+          </Menu.Item>
+
+          <Menu.Item
+            leftSection={<IconMoon size={16} />}
+            rightSection={
+              colorScheme === 'dark' ? <IconCheck size={16} /> : null
+            }
+            onClick={() => setColorScheme('dark')}
+          >
+            Dark
+          </Menu.Item>
+
+          <Divider my="xs" />
+
+          <Menu.Label>Date format</Menu.Label>
+
+          {(['ISO 8601', 'de', 'uk', 'us', 'unix'] as const).map((fmt) => (
+            <Menu.Item
+              key={fmt}
+              leftSection={<IconCalendar size={16} />}
+              rightSection={dateFormat === fmt ? <IconCheck size={16} /> : null}
+              onClick={() => setDateFormat(fmt)}
+            >
+              {formatLabel(fmt)}
+            </Menu.Item>
+          ))}
+        </Menu.Dropdown>
+      </Menu>
     </Group>
   );
 }
