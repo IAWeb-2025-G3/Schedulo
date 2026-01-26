@@ -718,18 +718,21 @@ const Page: NextPageWithLayout = () => {
                     >
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>Time Slot</span>
-                        {sortColumn === 'date' &&
-                          (sortDirection === 'asc' ? (
-                            <IconSortAscendingNumbers
-                              size={16}
-                              title="Sorted Ascending"
-                            />
-                          ) : (
-                            <IconSortDescendingNumbers
-                              size={16}
-                              title="Sorted Descending"
-                            />
-                          ))}
+                        {sortColumn === 'date' && (
+                          <ThemeIcon variant="light" size="sm">
+                            {sortDirection === 'asc' ? (
+                              <IconSortAscendingNumbers
+                                size={16}
+                                title="Sorted Ascending"
+                              />
+                            ) : (
+                              <IconSortDescendingNumbers
+                                size={16}
+                                title="Sorted Descending"
+                              />
+                            )}
+                          </ThemeIcon>
+                        )}
                       </Group>
                     </Table.Th>
                     <Table.Th
@@ -742,18 +745,21 @@ const Page: NextPageWithLayout = () => {
                     >
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>Yes</span>
-                        {sortColumn === 'yes' &&
-                          (sortDirection === 'asc' ? (
-                            <IconSortAscendingNumbers
-                              size={16}
-                              title="Sorted Ascending"
-                            />
-                          ) : (
-                            <IconSortDescendingNumbers
-                              size={16}
-                              title="Sorted Descending"
-                            />
-                          ))}
+                        {sortColumn === 'yes' && (
+                          <ThemeIcon variant="light" size="sm">
+                            {sortDirection === 'asc' ? (
+                              <IconSortAscendingNumbers
+                                size={16}
+                                title="Sorted Ascending"
+                              />
+                            ) : (
+                              <IconSortDescendingNumbers
+                                size={16}
+                                title="Sorted Descending"
+                              />
+                            )}
+                          </ThemeIcon>
+                        )}
                       </Group>
                     </Table.Th>
                     <Table.Th
@@ -766,18 +772,21 @@ const Page: NextPageWithLayout = () => {
                     >
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>If Need Be</span>
-                        {sortColumn === 'ifneedbe' &&
-                          (sortDirection === 'asc' ? (
-                            <IconSortAscendingNumbers
-                              size={16}
-                              title="Sorted Ascending"
-                            />
-                          ) : (
-                            <IconSortDescendingNumbers
-                              size={16}
-                              title="Sorted Descending"
-                            />
-                          ))}
+                        {sortColumn === 'ifneedbe' && (
+                          <ThemeIcon variant="light" size="sm">
+                            {sortDirection === 'asc' ? (
+                              <IconSortAscendingNumbers
+                                size={16}
+                                title="Sorted Ascending"
+                              />
+                            ) : (
+                              <IconSortDescendingNumbers
+                                size={16}
+                                title="Sorted Descending"
+                              />
+                            )}
+                          </ThemeIcon>
+                        )}
                       </Group>
                     </Table.Th>
                     <Table.Th
@@ -790,18 +799,21 @@ const Page: NextPageWithLayout = () => {
                     >
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>No</span>
-                        {sortColumn === 'no' &&
-                          (sortDirection === 'asc' ? (
-                            <IconSortAscendingNumbers
-                              size={16}
-                              title="Sorted Ascending"
-                            />
-                          ) : (
-                            <IconSortDescendingNumbers
-                              size={16}
-                              title="Sorted Descending"
-                            />
-                          ))}
+                        {sortColumn === 'no' && (
+                          <ThemeIcon variant="light" size="sm">
+                            {sortDirection === 'asc' ? (
+                              <IconSortAscendingNumbers
+                                size={16}
+                                title="Sorted Ascending"
+                              />
+                            ) : (
+                              <IconSortDescendingNumbers
+                                size={16}
+                                title="Sorted Descending"
+                              />
+                            )}
+                          </ThemeIcon>
+                        )}
                       </Group>
                     </Table.Th>
                   </Table.Tr>
@@ -827,10 +839,10 @@ const Page: NextPageWithLayout = () => {
                           }}
                         >
                           <Stack gap={2}>
-                            <Text size="sm" c="dimmed">
-                              {formatDate(slot.date, dateFormat)}
-                            </Text>
                             <Text>
+                              <Text size="sm" c="dimmed" span>
+                                {formatDate(slot.date, dateFormat)}
+                              </Text>{' '}
                               {slot.startTime} – {slot.endTime}
                             </Text>
                           </Stack>
@@ -919,10 +931,10 @@ const Page: NextPageWithLayout = () => {
                           }}
                         >
                           <Stack gap={2}>
-                            <Text size="sm" c="dimmed">
-                              {formatDate(slot.date, dateFormat)}
-                            </Text>
                             <Text>
+                              <Text size="sm" c="dimmed" span>
+                                {formatDate(slot.date, dateFormat)}
+                              </Text>{' '}
                               {slot.startTime} – {slot.endTime}
                             </Text>
                           </Stack>
