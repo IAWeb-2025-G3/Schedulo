@@ -50,6 +50,7 @@ export const ZodPoll = z.object({
   closedAt: z.coerce.date().optional(),
   comment: ZodComment.array().optional(),
   active: z.boolean().optional(),
+  winner: ZodTimeSlot.optional(),
 });
 export type Poll = z.infer<typeof ZodPoll>;
 

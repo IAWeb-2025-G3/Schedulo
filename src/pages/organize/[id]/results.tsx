@@ -37,6 +37,7 @@ import {
   IconDotsVertical,
   IconPlayerPlayFilled,
   IconPlayerPauseFilled,
+  IconTrophyOff,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -50,6 +51,7 @@ import { cn } from '~/components/PollForm/PollModal';
 import { useDisclosure } from '@mantine/hooks';
 import { TableComment } from '~/components/results/TableComment';
 import { modals } from '@mantine/modals';
+import { TimeSlot } from '~/pages/organize/poll';
 
 dayjs.extend(utc);
 
@@ -177,6 +179,12 @@ const Page: NextPageWithLayout = () => {
     },
   });
 
+  const winnerMutation = trpc.poll.setWinner.useMutation({
+    onSuccess: () => {
+      utils.poll.fetchPoll.invalidate({ id: id ?? '' });
+    },
+  });
+
   const startPoll = () => {
     startPollMutation.mutateAsync({
       id: id ?? '',
@@ -199,6 +207,10 @@ const Page: NextPageWithLayout = () => {
     reopenPollMutation.mutateAsync({
       id: id ?? '',
     });
+  };
+
+  const setWinner = (slot: TimeSlot) => {
+    winnerMutation.mutateAsync({ id: id ?? '', winner: slot });
   };
 
   if (!id) {
@@ -363,7 +375,7 @@ const Page: NextPageWithLayout = () => {
   };
 
   // Calculate winner - slot with most "yes" votes, then most "ifneedbe", then least "no"
-  const winner = sortedSlots.reduce<{
+  const calcWinner = sortedSlots.reduce<{
     slot: any;
     score: number;
     stats: any;
@@ -386,6 +398,22 @@ const Page: NextPageWithLayout = () => {
     }
     return best;
   }, null);
+
+  const storedWinner = () => {
+    if (poll.winner) {
+      const slotId = String(poll.winner?.id ?? '');
+      const r = resultsBySlot.get(slotId) ?? {
+        yes: 0,
+        ifneedbe: 0,
+        no: 0,
+        total: 0,
+        byName: new Map(),
+      };
+      return { slot: poll.winner, stats: r };
+    }
+    return null;
+  };
+  const winner = poll.winner ? storedWinner() : calcWinner;
 
   const handleDelete = () => {
     modals.openConfirmModal({
@@ -705,17 +733,8 @@ const Page: NextPageWithLayout = () => {
               >
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th
-                      style={{
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        position: 'sticky',
-                        left: 0,
-                        minWidth: 140,
-                        width: '150px',
-                      }}
-                      onClick={() => handleSort('date')}
-                    >
+                    <Table.Th style={{ width: 1 }}> </Table.Th>
+                    <Table.Th onClick={() => handleSort('date')}>
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>Time Slot</span>
                         {sortColumn === 'date' && (
@@ -735,14 +754,7 @@ const Page: NextPageWithLayout = () => {
                         )}
                       </Group>
                     </Table.Th>
-                    <Table.Th
-                      style={{
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        width: '150px',
-                      }}
-                      onClick={() => handleSort('yes')}
-                    >
+                    <Table.Th onClick={() => handleSort('yes')}>
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>Yes</span>
                         {sortColumn === 'yes' && (
@@ -762,14 +774,7 @@ const Page: NextPageWithLayout = () => {
                         )}
                       </Group>
                     </Table.Th>
-                    <Table.Th
-                      style={{
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        width: '150px',
-                      }}
-                      onClick={() => handleSort('ifneedbe')}
-                    >
+                    <Table.Th onClick={() => handleSort('ifneedbe')}>
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>If Need Be</span>
                         {sortColumn === 'ifneedbe' && (
@@ -789,14 +794,7 @@ const Page: NextPageWithLayout = () => {
                         )}
                       </Group>
                     </Table.Th>
-                    <Table.Th
-                      style={{
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        width: '150px',
-                      }}
-                      onClick={() => handleSort('no')}
-                    >
+                    <Table.Th onClick={() => handleSort('no')}>
                       <Group gap="xs">
                         <span style={{ fontWeight: 700 }}>No</span>
                         {sortColumn === 'no' && (
@@ -831,13 +829,43 @@ const Page: NextPageWithLayout = () => {
 
                     return (
                       <Table.Tr key={slotId}>
-                        <Table.Td
-                          fw={600}
-                          style={{
-                            position: 'sticky',
-                            left: 0,
-                          }}
-                        >
+                        <Table.Td style={{ whiteSpace: 'nowrap', width: 1 }}>
+                          <Button
+                            styles={{
+                              root: {
+                                backgroundColor:
+                                  winner?.slot.id === slot.id
+                                    ? 'var(--mantine-color-yellow-6)'
+                                    : undefined,
+                                color:
+                                  winner?.slot.id === slot.id
+                                    ? 'var(--mantine-color-dark)'
+                                    : undefined,
+                                '&:hover': {
+                                  backgroundColor:
+                                    winner?.slot.id === slot.id
+                                      ? 'var(--mantine-color-yellow-7)'
+                                      : undefined,
+                                },
+                              },
+                            }}
+                            onClick={() => setWinner(slot)}
+                            leftSection={
+                              winner?.slot.id === slot.id ? (
+                                <IconTrophy size={12} />
+                              ) : (
+                                <IconTrophyOff size={12} />
+                              )
+                            }
+                            size="compact-sm"
+                            disabled={winner?.slot.id === slot.id}
+                          >
+                            {winner?.slot.id === slot.id
+                              ? 'Winner'
+                              : 'Select as Winner'}
+                          </Button>
+                        </Table.Td>
+                        <Table.Td fw={600}>
                           <Stack gap={2}>
                             <Text>
                               <Text fw={700} span>
@@ -903,7 +931,6 @@ const Page: NextPageWithLayout = () => {
                       style={{
                         position: 'sticky',
                         left: 0,
-                        backgroundColor: 'var(--mantine-color-body)',
                         minWidth: 140,
                       }}
                     >
@@ -929,7 +956,6 @@ const Page: NextPageWithLayout = () => {
                           style={{
                             position: 'sticky',
                             left: 0,
-                            backgroundColor: 'var(--mantine-color-body)',
                           }}
                         >
                           <Stack gap={2}>

@@ -1,6 +1,6 @@
 import { publicProcedure, router } from '~/server/trpc';
 import { promises as fs } from 'fs';
-import { Poll, ZodPoll } from '~/pages/organize/poll';
+import { Poll, ZodPoll, ZodTimeSlot } from '~/pages/organize/poll';
 import path from 'path';
 import crypto from 'crypto';
 import z from 'zod';
@@ -160,6 +160,28 @@ export const pollRouter = router({
       const updatedPoll: Poll = {
         ...poll,
         active: false,
+      };
+      const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
+      await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');
+      await fs.rename(tmp, pollPath(input.id));
+      return input.id;
+    }),
+
+  setWinner: publicProcedure
+    .input(z.object({ id: z.string(), winner: ZodTimeSlot.optional() }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.organizerId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Organizer not authenticated',
+        });
+      }
+      await ensureDir();
+      const content = await fs.readFile(pollPath(input.id), 'utf8');
+      const poll = ZodPoll.parse(JSON.parse(content));
+      const updatedPoll: Poll = {
+        ...poll,
+        winner: input.winner,
       };
       const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
       await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');

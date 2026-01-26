@@ -163,7 +163,7 @@ const Page: NextPageWithLayout = () => {
   });
 
   // Calculate winner - slot with most "yes" votes, then most "ifneedbe", then least "no"
-  const winner = sortedSlots.reduce<{
+  const calcWinner = sortedSlots.reduce<{
     slot: any;
     score: number;
     stats: any;
@@ -186,6 +186,23 @@ const Page: NextPageWithLayout = () => {
     }
     return best;
   }, null);
+
+  const storedWinner = () => {
+    if (poll.winner) {
+      const slotId = String(poll.winner?.id ?? '');
+      const r = resultsBySlot.get(slotId) ?? {
+        yes: 0,
+        ifneedbe: 0,
+        no: 0,
+        total: 0,
+        byName: new Map(),
+      };
+      return { slot: poll.winner, stats: r };
+    }
+    return null;
+  };
+
+  const winner = poll.winner ? storedWinner() : calcWinner;
 
   return (
     <Stack gap="lg" className="w-full max-w-6xl py-8">
