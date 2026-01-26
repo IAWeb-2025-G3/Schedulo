@@ -14,13 +14,7 @@ import {
   ScrollArea,
   Tooltip,
 } from '@mantine/core';
-import {
-  IconEdit,
-  IconTrash,
-  IconPlus,
-  IconEyeOff,
-  IconEye,
-} from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
@@ -37,18 +31,8 @@ type OrganizerFormData = {
 const Page: NextPageWithLayout = () => {
   const [opened, setOpened] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [visiblePasswords, setVisiblePasswords] = useState<
-    Record<string, boolean>
-  >({});
 
   const { dateFormat } = usePreferences();
-
-  const togglePassword = (id: string) => {
-    setVisiblePasswords((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
 
   const utils = trpc.useUtils();
   const { data: organizers, isLoading } =
@@ -136,11 +120,7 @@ const Page: NextPageWithLayout = () => {
     setOpened(true);
   };
 
-  const handleOpenEdit = (organizer: {
-    id: string;
-    username: string;
-    password: string;
-  }) => {
+  const handleOpenEdit = (organizer: { id: string; username: string }) => {
     form.setValues({
       id: organizer.id,
       username: organizer.username,
@@ -213,7 +193,6 @@ const Page: NextPageWithLayout = () => {
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Username</Table.Th>
-                  <Table.Th>Password</Table.Th>
                   <Table.Th>Created</Table.Th>
                   <Table.Th style={{ width: 120 }}>Actions</Table.Th>
                 </Table.Tr>
@@ -225,26 +204,6 @@ const Page: NextPageWithLayout = () => {
                     <Table.Tr key={organizer.id}>
                       <Table.Td>
                         <Text fw={500}>{organizer.username}</Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <div className="flex gap-2">
-                          <ActionIcon
-                            size="sm"
-                            variant="subtle"
-                            onClick={() => togglePassword(organizer.id!)}
-                          >
-                            {visiblePasswords[organizer.id] ? (
-                              <IconEyeOff size={16} />
-                            ) : (
-                              <IconEye size={16} />
-                            )}
-                          </ActionIcon>
-                          <Text c="dimmed" style={{ fontFamily: 'monospace' }}>
-                            {visiblePasswords[organizer.id]
-                              ? organizer.password
-                              : '••••'}
-                          </Text>
-                        </div>
                       </Table.Td>
 
                       <Table.Td>
@@ -267,7 +226,6 @@ const Page: NextPageWithLayout = () => {
                               handleOpenEdit({
                                 id: organizer.id!,
                                 username: organizer.username,
-                                password: organizer.password,
                               })
                             }
                           >
@@ -339,15 +297,29 @@ const Page: NextPageWithLayout = () => {
               </Button>
               <Tooltip
                 color="yellow"
-                disabled={form.values.username.trim() !== '' && (editingId ? true : form.values.password.trim() !== '')}
-                label={<Text>{!form.values.username.trim() ? 'Please enter a username!' : 'Please enter a password!'}</Text>}
+                disabled={
+                  form.values.username.trim() !== '' &&
+                  (editingId ? true : form.values.password.trim() !== '')
+                }
+                label={
+                  <Text>
+                    {!form.values.username.trim()
+                      ? 'Please enter a username!'
+                      : 'Please enter a password!'}
+                  </Text>
+                }
                 openDelay={500}
                 withArrow
               >
                 <Button
                   type="submit"
-                  loading={createOrganizer.isPending || updateOrganizer.isPending}
-                  disabled={!form.values.username.trim() || (editingId ? false : !form.values.password.trim())}
+                  loading={
+                    createOrganizer.isPending || updateOrganizer.isPending
+                  }
+                  disabled={
+                    !form.values.username.trim() ||
+                    (editingId ? false : !form.values.password.trim())
+                  }
                 >
                   {editingId ? 'Update' : 'Create'}
                 </Button>

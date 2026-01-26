@@ -4,6 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { ORGANIZERS_DIR } from '~/server/routers/organizerRouter';
 import { env } from '~/server/env';
+import bycrypt from 'bcryptjs';
 
 const COOKIE_NAME = 'organizer_session';
 
@@ -15,11 +16,11 @@ export function sign(value: string) {
   return `${value}.${sig}`;
 }
 
-function timingSafeEqual(a: string, b: string) {
-  const ab = Buffer.from(a);
-  const bb = Buffer.from(b);
-  return ab.length === bb.length && crypto.timingSafeEqual(ab, bb);
-}
+// function timingSafeEqual(a: string, b: string) {
+//   const ab = Buffer.from(a);
+//   const bb = Buffer.from(b);
+//   return ab.length === bb.length && crypto.timingSafeEqual(ab, bb);
+// }
 
 export default async function handler(
   req: NextApiRequest,
@@ -41,7 +42,7 @@ export default async function handler(
       );
       const organizer = JSON.parse(content);
       if (organizer.username === username) {
-        if (timingSafeEqual(organizer.password, password)) {
+        if (await bycrypt.compare(password, organizer.password)) {
           const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 8;
           const token = sign(`${organizer.id}.${exp}`);
           res.setHeader(

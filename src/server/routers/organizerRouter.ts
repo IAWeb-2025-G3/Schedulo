@@ -4,6 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import z from 'zod';
 import { env } from '~/server/env';
+import bycrpyt from 'bcryptjs';
 
 const ZodOrganizer = z.object({
   id: z.string().optional(),
@@ -52,11 +53,13 @@ export const organizerRouter = router({
         }
       }
 
+      const passwordHash = await bycrpyt.hash(input.password, 10);
+
       const organizerId = crypto.randomUUID();
       const full: Organizer = {
         id: organizerId,
         username: input.username,
-        password: input.password,
+        password: passwordHash,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -110,7 +113,9 @@ export const organizerRouter = router({
         ...(input.username && { username: input.username }),
         // Only update password if provided and not empty
         ...(input.password &&
-          input.password.length > 0 && { password: input.password }),
+          input.password.length > 0 && {
+            password: await bycrpyt.hash(input.password, 10),
+          }),
         updatedAt: new Date().toISOString(),
       };
 
@@ -135,7 +140,7 @@ export const organizerRouter = router({
   fetchOrganizers: publicProcedure.query(async () => {
     await ensureDir();
     const files = await fs.readdir(ORGANIZERS_DIR);
-    const organizers: Organizer[] = [];
+    const organizers = [];
     for (const file of files) {
       if (file.endsWith('.json')) {
         const content = await fs.readFile(
@@ -143,7 +148,12 @@ export const organizerRouter = router({
           'utf8',
         );
         const organizer = ZodOrganizer.parse(JSON.parse(content));
-        organizers.push(organizer);
+        organizers.push({
+          id: organizer.id,
+          username: organizer.username,
+          createdAt: organizer.createdAt,
+          updatedAt: organizer.updatedAt,
+        });
       }
     }
     return organizers.sort((a, b) => {
@@ -159,7 +169,12 @@ export const organizerRouter = router({
       await ensureDir();
       const content = await fs.readFile(organizerPath(input.id), 'utf8');
       const organizer = ZodOrganizer.parse(JSON.parse(content));
-      return organizer;
+      return {
+        id: organizer.id,
+        username: organizer.username,
+        createdAt: organizer.createdAt,
+        updatedAt: organizer.updatedAt,
+      };
     }),
 
   getCurrentOrganizer: publicProcedure.query(async ({ ctx }) => {

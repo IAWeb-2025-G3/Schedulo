@@ -66,6 +66,7 @@ export function UserMenu() {
       } else {
         throw new Error('Logout failed');
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       notifications.show({
         title: 'Error',
