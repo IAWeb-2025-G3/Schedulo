@@ -4,6 +4,9 @@ import { UseFormReturnType } from '@mantine/form';
 import { Poll } from '~/pages/organize/poll';
 import dayjs from 'dayjs';
 import { IconPlus, IconX } from '@tabler/icons-react';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
 type Props = {
   form: UseFormReturnType<Poll, (values: Poll) => Poll>;
 };
@@ -133,30 +136,71 @@ export const CalendarCardPoll = ({ form }: Props) => {
                     </Title>
                   </Card>
                   <div className="flex flex-col gap-2">
-                    {timeSlots.slots.map((slot, index) => (
-                      <div className="flex gap-2 items-center" key={index}>
-                        <TimePicker
-                          value={slot.startTime}
-                          onChange={(time) =>
-                            handleChangeTime(slot.id)(time, 'startTime')
-                          }
-                        />
-                        -
-                        <TimePicker
-                          value={slot.endTime}
-                          onChange={(time) =>
-                            handleChangeTime(slot.id)(time, 'endTime')
-                          }
-                        />
-                        <ActionIcon
-                          size="input-sm"
-                          variant="subtle"
-                          onClick={() => handleDeleteTime(slot.id)}
-                        >
-                          <IconX size={16} />
-                        </ActionIcon>
-                      </div>
-                    ))}
+                    {timeSlots.slots.map((slot, index) => {
+                      let timeSlotValid = true;
+
+                      if (
+                        dayjs(slot.endTime, 'HH:mm').isBefore(
+                          dayjs(slot.startTime, 'HH:mm'),
+                        ) ||
+                        dayjs(slot.endTime, 'HH:mm').isSame(
+                          dayjs(slot.startTime, 'HH:mm'),
+                        )
+                      ) {
+                        timeSlotValid = false;
+                      }
+
+                      return (
+                        <div className="flex gap-2 items-center" key={index}>
+                          <TimePicker
+                            styles={
+                              !timeSlotValid
+                                ? {
+                                    input: {
+                                      backgroundColor: 'orange',
+                                      color: 'white',
+                                    },
+                                    field: {
+                                      color: 'white',
+                                    },
+                                  }
+                                : undefined
+                            }
+                            value={slot.startTime}
+                            onChange={(time) =>
+                              handleChangeTime(slot.id)(time, 'startTime')
+                            }
+                          />
+                          -
+                          <TimePicker
+                            styles={
+                              !timeSlotValid
+                                ? {
+                                    input: {
+                                      backgroundColor: 'orange',
+                                      color: 'white',
+                                    },
+                                    field: {
+                                      color: 'white',
+                                    },
+                                  }
+                                : undefined
+                            }
+                            value={slot.endTime}
+                            onChange={(time) =>
+                              handleChangeTime(slot.id)(time, 'endTime')
+                            }
+                          />
+                          <ActionIcon
+                            size="input-sm"
+                            variant="subtle"
+                            onClick={() => handleDeleteTime(slot.id)}
+                          >
+                            <IconX size={16} />
+                          </ActionIcon>
+                        </div>
+                      );
+                    })}
 
                     <div>
                       <Button

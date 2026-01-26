@@ -8,6 +8,11 @@ import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
 import { IconArrowLeft, IconSend } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
+import dayjs from 'dayjs';
+import { useState, useEffect } from 'react';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
 
 export const ZodComment = z.object({
   comment: z.string(),
@@ -65,6 +70,22 @@ const Page: NextPageWithLayout = () => {
 
   const router = useRouter();
 
+  const [invalidSlots, setInvalidSlots] = useState(false);
+
+  useEffect(() => {
+    let invalid = false;
+    setInvalidSlots(false);
+    for (const date of form.values.dates) {
+      if (
+        dayjs(date.startTime, 'HH:mm').isAfter(dayjs(date.endTime, 'HH:mm')) ||
+        dayjs(date.startTime, 'HH:mm').isSame(dayjs(date.endTime, 'HH:mm'))
+      ) {
+        invalid = true;
+        break;
+      }
+    }
+    setInvalidSlots(invalid);
+  }, [form.values.dates]);
   const storePoll = trpc.poll.storePoll.useMutation({
     onSuccess: (data) => {
       router.push(`/organize/${data}/results`);
@@ -110,13 +131,17 @@ const Page: NextPageWithLayout = () => {
       <Tooltip
         color="yellow"
         disabled={
-          form.values.title.trim() !== '' && form.values.dates.length > 0
+          form.values.title.trim() !== '' &&
+          form.values.dates.length > 0 &&
+          !invalidSlots
         }
         label={
           <Text>
             {!form.values.title.trim()
               ? 'Please enter a title!'
-              : 'Please add at least one time slot!'}
+              : !form.values.dates.length
+                ? 'Please add at least one time slot!'
+                : 'Please fix invalid time slots!'}
           </Text>
         }
         openDelay={500}
@@ -126,7 +151,11 @@ const Page: NextPageWithLayout = () => {
           type="submit"
           leftSection={<IconSend size={16} />}
           loading={storePoll.isPending}
-          disabled={!form.values.title.trim() || form.values.dates.length === 0}
+          disabled={
+            !form.values.title.trim() ||
+            form.values.dates.length === 0 ||
+            invalidSlots
+          }
         >
           Submit
         </Button>
