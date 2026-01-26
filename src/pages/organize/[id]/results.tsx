@@ -840,10 +840,12 @@ const Page: NextPageWithLayout = () => {
                         >
                           <Stack gap={2}>
                             <Text>
-                              <Text size="sm" c="dimmed" span>
+                              <Text fw={700} span>
                                 {formatDate(slot.date, dateFormat)}
                               </Text>{' '}
-                              {slot.startTime} – {slot.endTime}
+                              <Text c="dimmed" span>
+                                {slot.startTime} – {slot.endTime}
+                              </Text>
                             </Text>
                           </Stack>
                         </Table.Td>
@@ -932,10 +934,12 @@ const Page: NextPageWithLayout = () => {
                         >
                           <Stack gap={2}>
                             <Text>
-                              <Text size="sm" c="dimmed" span>
+                              <Text fw={700} span>
                                 {formatDate(slot.date, dateFormat)}
                               </Text>{' '}
-                              {slot.startTime} – {slot.endTime}
+                              <Text c="dimmed" span>
+                                {slot.startTime} – {slot.endTime}
+                              </Text>
                             </Text>
                           </Stack>
                         </Table.Td>
