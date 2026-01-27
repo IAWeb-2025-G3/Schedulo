@@ -83,13 +83,13 @@ function VoteBadge({ value, comment }: { value: VoteValue; comment?: string }) {
   const normalized = String(value).toLowerCase();
   if (normalized === 'yes') {
     content = (
-      <Badge color="green" leftSection={<IconCheck size={14} />}>
+      <Badge color="green" leftSection={<IconCheck size={14} />} style={{ textTransform: 'none' }}>
         Yes
       </Badge>
     );
   } else if (normalized === 'no') {
     content = (
-      <Badge color="red" leftSection={<IconX size={14} />}>
+      <Badge color="red" leftSection={<IconX size={14} />} style={{ textTransform: 'none' }}>
         No
       </Badge>
     );
@@ -99,6 +99,7 @@ function VoteBadge({ value, comment }: { value: VoteValue; comment?: string }) {
         color="yellow"
         variant="light"
         leftSection={<IconQuestionMark size={14} />}
+        style={{ textTransform: 'none' }}
       >
         If Need Be
       </Badge>
@@ -670,6 +671,7 @@ const Page: NextPageWithLayout = () => {
                       color="green"
                       variant="filled"
                       leftSection={<IconCheck size={16} />}
+                      style={{ textTransform: 'none' }}
                     >
                       {winner.stats.yes} Yes
                     </Badge>
@@ -678,6 +680,7 @@ const Page: NextPageWithLayout = () => {
                       color="yellow"
                       variant="filled"
                       leftSection={<IconQuestionMark size={16} />}
+                      style={{ textTransform: 'none' }}
                     >
                       {winner.stats.ifneedbe} If Need Be
                     </Badge>
@@ -687,6 +690,7 @@ const Page: NextPageWithLayout = () => {
                         color="red"
                         variant="filled"
                         leftSection={<IconX size={16} />}
+                        style={{ textTransform: 'none' }}
                       >
                         {winner.stats.no} No
                       </Badge>

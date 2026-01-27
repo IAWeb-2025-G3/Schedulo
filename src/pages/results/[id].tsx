@@ -300,6 +300,7 @@ const Page: NextPageWithLayout = () => {
                       color="green"
                       variant="filled"
                       leftSection={<IconCheck size={16} />}
+                      style={{ textTransform: 'none' }}
                     >
                       {winner.stats.yes} Yes
                     </Badge>
@@ -308,6 +309,7 @@ const Page: NextPageWithLayout = () => {
                       color="yellow"
                       variant="filled"
                       leftSection={<IconQuestionMark size={16} />}
+                      style={{ textTransform: 'none' }}
                     >
                       {winner.stats.ifneedbe} If Need Be
                     </Badge>
@@ -317,6 +319,7 @@ const Page: NextPageWithLayout = () => {
                         color="red"
                         variant="filled"
                         leftSection={<IconX size={16} />}
+                        style={{ textTransform: 'none' }}
                       >
                         {winner.stats.no} No
                       </Badge>
