@@ -197,7 +197,7 @@ const Page: NextPageWithLayout = () => {
         total: 0,
         byName: new Map(),
       };
-      return { slot: poll.winner, stats: r };
+      return { slot: poll.winner, stats: r, isManuallySelected: true };
     }
     return null;
   };
@@ -254,7 +254,7 @@ const Page: NextPageWithLayout = () => {
       </Card>
 
       {/* Winner Card */}
-      {winner && winner.stats.total > 0 && (
+      {winner && (winner.stats.total > 0 || winner.isManuallySelected) && (
         <Card withBorder padding="xl">
           <Stack gap="md">
             <Group gap="sm" align="center">
@@ -268,7 +268,7 @@ const Page: NextPageWithLayout = () => {
                   Chosen Time Slot
                 </Title>
                 <Text c="dimmed" size="sm">
-                  Based on voting results
+                  Based on final voting decision
                 </Text>
               </div>
             </Group>
@@ -332,13 +332,13 @@ const Page: NextPageWithLayout = () => {
         </Card>
       )}
 
-      {(!winner || winner.stats.total === 0) && (
+      {(!winner || (winner.stats.total === 0 && !winner.isManuallySelected)) && (
         <Card withBorder padding="lg">
           <Group gap="sm">
             <IconAlertCircle size={20} color="var(--mantine-color-dimmed)" />
             <Text c="dimmed">
               No votes yet. The winner will be displayed once participants start
-              voting.
+              voting or the organizer selects a time slot manually.
             </Text>
           </Group>
         </Card>
