@@ -38,6 +38,8 @@ export const TimeSlotCard = ({ slot, form, data }: Props) => {
       const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
       if (voteIndex === -1) {
         next.push({ pollId: data.id!, name: '', timeSlotId: id, value: 'yes' });
+      } else if (next[voteIndex].value === 'yes') {
+        next.splice(voteIndex, 1);
       } else {
         next[voteIndex] = {
           pollId: data.id!,
@@ -55,6 +57,8 @@ export const TimeSlotCard = ({ slot, form, data }: Props) => {
       const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
       if (voteIndex === -1) {
         next.push({ pollId: data.id!, name: '', timeSlotId: id, value: 'no' });
+      } else if (next[voteIndex].value === 'no') {
+        next.splice(voteIndex, 1);
       } else {
         next[voteIndex] = {
           pollId: data.id!,
@@ -78,8 +82,9 @@ export const TimeSlotCard = ({ slot, form, data }: Props) => {
           timeSlotId: id,
           value: 'ifNeedBe',
         });
-      } else {
-        next[voteIndex] = {
+      } else if (next[voteIndex].value === 'ifNeedBe') {
+        next.splice(voteIndex, 1);
+      } else {        next[voteIndex] = {
           pollId: data.id!,
           name: '',
           timeSlotId: id,

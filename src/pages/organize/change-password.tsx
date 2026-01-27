@@ -36,7 +36,7 @@ const Page: NextPageWithLayout = () => {
     onSuccess: () => {
       notifications.show({
         title: 'Success',
-        message: 'Password changed successfully',
+        message: 'Password changed successfully!',
         color: 'green',
         icon: <IconCheck />,
       });

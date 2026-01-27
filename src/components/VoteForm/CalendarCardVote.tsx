@@ -31,12 +31,7 @@ export const CalendarCardVote = ({ data }: Props) => {
       location: data.location || '',
       description: data.description || '',
       dates: data.dates,
-      votes: data.dates.map((slot) => ({
-        pollId: data.id!,
-        name: '',
-        timeSlotId: slot.id,
-        value: 'ifNeedBe',
-      })),
+      votes: [],
       createdAt: data.createdAt,
       organizerId: data.organizerId,
     },
@@ -66,7 +61,7 @@ export const CalendarCardVote = ({ data }: Props) => {
   const handleSubmit = async (values: Poll) => {
     const payload: Poll = {
       ...values,
-      votes: form.values.votes?.map((vote) => ({ ...vote, name })),
+      votes: form.values.votes?.filter((vote) => vote.value).map((vote) => ({ ...vote, name })),
       comment: comment.trim() ? [{ name, comment }] : [],
     };
 

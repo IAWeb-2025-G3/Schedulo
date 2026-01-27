@@ -14,7 +14,7 @@ export const PollModal = ({ pollId, clearForm }: Props) => {
   const copyToClipboard = () => {
     notifications.show({
       title: 'Link Copied',
-      message: 'Poll link copied to clipboard',
+      message: 'Poll link copied to clipboard!',
       color: 'green',
     });
   };

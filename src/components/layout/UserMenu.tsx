@@ -51,31 +51,34 @@ export function UserMenu() {
 
   const handleLogout = async () => {
     setLoggingOut(true);
-    try {
-      const res = await fetch('/api/logout', { method: 'POST' });
-      if (res.ok) {
-        // Invalidate the query cache to clear user data
-        utils.organizer.getCurrentUser.invalidate();
-        utils.organizer.getCurrentOrganizer.invalidate();
-        notifications.show({
-          title: 'Success',
-          message: 'Logged out successfully',
-          color: 'green',
-        });
-        router.push('/');
-      } else {
-        throw new Error('Logout failed');
-      }
+
+    fetch('/api/logout', { method: 'POST' })
+      .then((res) => {
+        if (res.ok) {
+          // Invalidate the query cache to clear user data
+          utils.organizer.getCurrentUser.invalidate();
+          utils.organizer.getCurrentOrganizer.invalidate();
+          notifications.show({
+            title: 'Success',
+            message: 'Logged out successfully!',
+            color: 'green',
+          });
+          router.push('/');
+        } else {
+          throw new Error('Logout failed');
+        }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      notifications.show({
-        title: 'Error',
-        message: 'Failed to logout',
-        color: 'red',
+      })
+      .catch((error) => {
+        notifications.show({
+          title: 'Error',
+          message: `Failed to logout: ${error.message}`,
+          color: 'red',
+        });
+      })
+      .finally(() => {
+        setLoggingOut(false);
       });
-    } finally {
-      setLoggingOut(false);
-    }
   };
 
   return (

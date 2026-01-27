@@ -59,7 +59,7 @@ const Page: NextPageWithLayout = () => {
     onSuccess: () => {
       notifications.show({
         title: 'Success',
-        message: 'Organizer created successfully',
+        message: 'Organizer created successfully!',
         color: 'green',
       });
       utils.organizer.fetchOrganizers.invalidate();
@@ -79,7 +79,7 @@ const Page: NextPageWithLayout = () => {
     onSuccess: () => {
       notifications.show({
         title: 'Success',
-        message: 'Organizer updated successfully',
+        message: 'Organizer updated successfully!',
         color: 'green',
       });
       utils.organizer.fetchOrganizers.invalidate();
@@ -100,7 +100,7 @@ const Page: NextPageWithLayout = () => {
     onSuccess: () => {
       notifications.show({
         title: 'Success',
-        message: 'Organizer deleted successfully',
+        message: 'Organizer deleted successfully!',
         color: 'green',
       });
       utils.organizer.fetchOrganizers.invalidate();
