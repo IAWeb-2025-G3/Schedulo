@@ -26,12 +26,10 @@ const Page: NextPageWithLayout = () => {
   const { data: currentOrganizer, isLoading: isLoadingOrganizer } =
     trpc.organizer.getCurrentOrganizer.useQuery();
 
-  const { data: organizerData } = trpc.organizer.fetchOrganizer.useQuery(
-    { id: currentOrganizer?.id ?? '' },
-    { enabled: !!currentOrganizer?.id },
-  );
-
   const utils = trpc.useUtils();
+  
+  const verifyPassword = trpc.organizer.verifyPassword.useMutation();
+
   const updateOrganizer = trpc.organizer.updateOrganizer.useMutation({
     onSuccess: () => {
       notifications.show({
@@ -83,7 +81,12 @@ const Page: NextPageWithLayout = () => {
     }
 
     // Verify current password
-    if (organizerData?.password !== currentPassword) {
+    try {
+      await verifyPassword.mutateAsync({
+        id: currentOrganizer.id!,
+        password: currentPassword,
+      });
+    } catch {
       setError('Current password is incorrect');
       return;
     }

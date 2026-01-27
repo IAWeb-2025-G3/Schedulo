@@ -167,6 +167,7 @@ const Page: NextPageWithLayout = () => {
     slot: any;
     score: number;
     stats: any;
+    isManuallySelected?: boolean;
   } | null>((best, slot) => {
     const slotId = String(slot?.id ?? '');
     const r = resultsBySlot.get(slotId) ?? {

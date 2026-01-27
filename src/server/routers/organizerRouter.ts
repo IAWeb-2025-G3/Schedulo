@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import z from 'zod';
 import { env } from '~/server/env';
 import bycrpyt from 'bcryptjs';
+import { id } from 'zod/v4/locales';
 
 const ZodOrganizer = z.object({
   id: z.string().optional(),
@@ -127,6 +128,24 @@ export const organizerRouter = router({
       );
       await fs.rename(tmp, organizerPath(input.id));
       return input.id;
+    }),
+
+  verifyPassword: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        password: z.string(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await ensureDir();
+      const content = await fs.readFile(organizerPath(input.id), 'utf8');
+      const organizer = ZodOrganizer.parse(JSON.parse(content));
+      const isValid = await bycrpyt.compare(input.password, organizer.password);
+      if (!isValid) {
+        throw new Error('Invalid password');
+      }
+      return {valid: true}
     }),
 
   deleteOrganizer: publicProcedure
