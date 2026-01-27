@@ -102,7 +102,7 @@ const Page: NextPageWithLayout = () => {
                     <ThemeIcon
                       size="xs"
                       variant={poll.closedAt ? 'transparent' : 'light'}
-                      title="Closed"
+                      title={poll.closedAt ? "Closed" : poll.active ? 'Active' : 'Paused'}
                       radius="lg"
                       className={cn(
                         poll.closedAt ? '' : poll.active ? 'animate-pulse' : '',

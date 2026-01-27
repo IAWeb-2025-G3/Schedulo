@@ -33,10 +33,12 @@ export const ShareButton = ({
 
   if (!canShare) return null; // or fallback UI
 
+  const disabled = !poll.active && poll.closedAt === undefined
+
   return (
     <>
       <ActionIcon
-        disabled={!poll.active}
+        disabled={disabled}
         className="sm:!hidden"
         size="lg"
         onClick={handleShare}
@@ -45,7 +47,7 @@ export const ShareButton = ({
         <IconShare size={16} />
       </ActionIcon>
       <Button
-        disabled={!poll.active}
+        disabled={disabled}
         leftSection={<IconShare size={16} />}
         onClick={handleShare}
         className="!hidden sm:!block"
