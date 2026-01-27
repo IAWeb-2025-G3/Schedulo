@@ -456,7 +456,7 @@ const Page: NextPageWithLayout = () => {
               <ThemeIcon
                 size="md"
                 variant={poll.closedAt ? 'transparent' : 'light'}
-                title="Closed"
+                title={poll.closedAt ? "Closed" : poll.active ? 'Active' : 'Paused'}
                 radius="lg"
                 className={cn(
                   poll.closedAt ? '' : poll.active ? 'animate-pulse' : '',
@@ -477,7 +477,7 @@ const Page: NextPageWithLayout = () => {
           </div>
           <div className="flex gap-2 items-center">
             <>
-              <ActionIcon
+              {poll.closedAt === undefined && (<ActionIcon
                 variant="filled"
                 size="lg"
                 onClick={poll.active ? pausePoll : startPoll}
@@ -493,7 +493,7 @@ const Page: NextPageWithLayout = () => {
                 ) : (
                   <IconPlayerPlayFilled size={20} />
                 )}
-              </ActionIcon>
+              </ActionIcon>)}
 
               <ActionIcon
                 disabled={!poll.active}

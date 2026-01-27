@@ -95,6 +95,7 @@ export const pollRouter = router({
       const updatedPoll: Poll = {
         ...poll,
         closedAt: new Date(),
+        active: false
       };
       const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
       await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');
