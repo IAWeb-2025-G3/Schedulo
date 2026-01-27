@@ -282,12 +282,14 @@ const Page: NextPageWithLayout = () => {
                   <Text size="sm" c="dimmed" mb={4}>
                     Date & Time
                   </Text>
-                  <Text fw={700} size="xl">
-                    {formatDate(winner.slot.date, dateFormat)}
-                  </Text>
-                  <Text fw={600} size="lg" mt={4}>
-                    {winner.slot.startTime} – {winner.slot.endTime}
-                  </Text>
+                  <Group gap="sm">
+                    <Text fw={700} size="xl">
+                      {formatDate(winner.slot.date, dateFormat)}
+                    </Text>
+                    <Text c="gray.4" fw={600} size="xl">
+                      {winner.slot.startTime} – {winner.slot.endTime}
+                    </Text>
+                  </Group>
                 </div>
 
                 <div style={{ flex: 1 }}>
