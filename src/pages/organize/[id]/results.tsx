@@ -851,7 +851,7 @@ const Page: NextPageWithLayout = () => {
                                     : undefined,
                                 color:
                                   winner?.slot.id === slot.id
-                                    ? 'var(--mantine-color-dark)'
+                                    ? 'black'
                                     : undefined,
                                 '&:hover': {
                                   backgroundColor:
