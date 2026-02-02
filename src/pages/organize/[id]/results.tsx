@@ -829,8 +829,9 @@ const Page: NextPageWithLayout = () => {
                                 variant="outline"
                                 onClick={deleteWinner}
                                 disabled={poll.closedAt !== undefined}
+                                title="Remove Manual Selection"
                               >
-                                <IconTrash size={18} />
+                                <IconX size={20} />
                               </ActionIcon>
                             )}
                           </div>
@@ -930,6 +931,7 @@ const Page: NextPageWithLayout = () => {
                               onClick={() => deleteVotes(userId)}
                               variant="light"
                               color="red"
+                              title="Remove User Votes"
                             >
                               <IconTrash size={20} />
                             </ActionIcon>
