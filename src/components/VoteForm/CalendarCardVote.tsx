@@ -59,10 +59,11 @@ export const CalendarCardVote = ({ data }: Props) => {
   });
 
   const handleSubmit = async (values: Poll) => {
+    const userId = crypto.randomUUID();
     const payload: Poll = {
       ...values,
-      votes: form.values.votes?.filter((vote) => vote.value).map((vote) => ({ ...vote, name })),
-      comment: comment.trim() ? [{ name, comment }] : [],
+      votes: form.values.votes?.map((vote) => ({ ...vote, name, userId })),
+      comment: comment.trim() ? [{ name, comment, userId }] : [],
     };
 
     try {

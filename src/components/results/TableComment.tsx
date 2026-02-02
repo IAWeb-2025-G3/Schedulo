@@ -23,7 +23,9 @@ export const TableComment = ({ name, poll }: Props) => {
           className="cursor-default"
         >
           <Indicator
-            position="top-start"
+            inline
+            position="middle-end"
+            offset={-10}
             color="yellow"
             disabled={poll.comment?.find((c) => c.name === name) === undefined}
           >

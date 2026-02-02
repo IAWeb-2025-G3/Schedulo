@@ -19,9 +19,12 @@ export const defaultTheme = createTheme({
     primary,
   },
   components: {
-    Button: {
+    Badge: {
       classNames: {
-        root: 'transition-all ease-in-out hover:scale-105',
+        root: '!capitalize',
+      },
+      defaultProps: {
+        radius: 'md',
       },
     },
   },

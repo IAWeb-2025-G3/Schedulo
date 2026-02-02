@@ -25,12 +25,37 @@ export const pollRouter = router({
     }
     await ensureDir();
     const pollId = input.id ?? crypto.randomUUID();
-    const full = {
-      id: pollId,
-      ...input,
-      updatedAt: new Date().toISOString(),
-      organizerId: ctx.organizerId,
-    };
+
+    let full;
+
+    if (input.id) {
+      const existingContent = await fs.readFile(pollPath(input.id), 'utf8');
+      const existingPoll = ZodPoll.parse(JSON.parse(existingContent));
+      if (
+        existingPoll.winner &&
+        input.dates.some((d) => d.id === existingPoll.winner?.id)
+      ) {
+        full = {
+          ...existingPoll,
+          ...input,
+          updatedAt: new Date().toISOString(),
+          winner: existingPoll.winner,
+        };
+      } else {
+        full = {
+          ...existingPoll,
+          ...input,
+          updatedAt: new Date().toISOString(),
+        };
+      }
+    } else {
+      full = {
+        id: pollId,
+        ...input,
+        updatedAt: new Date().toISOString(),
+        organizerId: ctx.organizerId,
+      };
+    }
     const tmp = `${pollPath(pollId)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
     await fs.writeFile(tmp, JSON.stringify(full, null, 2), 'utf8');
     await fs.rename(tmp, pollPath(pollId));
@@ -53,6 +78,22 @@ export const pollRouter = router({
     await fs.rename(tmp, pollPath(input.id));
     return input.id;
   }),
+  deleteVotes: publicProcedure
+    .input(z.object({ pollId: z.string(), userId: z.string() }))
+    .mutation(async ({ input }) => {
+      await ensureDir();
+      const existingContent = await fs.readFile(pollPath(input.pollId), 'utf8');
+      const existingPoll = ZodPoll.parse(JSON.parse(existingContent));
+      const updatedPoll: Poll = {
+        ...existingPoll,
+        votes: existingPoll.votes?.filter((v) => v.userId !== input.userId),
+        comment: existingPoll.comment?.filter((c) => c.userId !== input.userId),
+      };
+      const tmp = `${pollPath(input.pollId)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
+      await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');
+      await fs.rename(tmp, pollPath(input.pollId));
+      return input.pollId;
+    }),
   fetchPolls: publicProcedure.query(async ({ ctx }) => {
     if (!ctx.organizerId) {
       throw new TRPCError({
@@ -183,6 +224,28 @@ export const pollRouter = router({
       const updatedPoll: Poll = {
         ...poll,
         winner: input.winner,
+      };
+      const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
+      await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');
+      await fs.rename(tmp, pollPath(input.id));
+      return input.id;
+    }),
+
+  deleteWinner: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.organizerId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Organizer not authenticated',
+        });
+      }
+      await ensureDir();
+      const content = await fs.readFile(pollPath(input.id), 'utf8');
+      const poll = ZodPoll.parse(JSON.parse(content));
+      const updatedPoll: Poll = {
+        ...poll,
+        winner: undefined,
       };
       const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
       await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');

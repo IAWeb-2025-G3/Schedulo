@@ -8,7 +8,6 @@ import {
   Badge,
   Table,
   Stack,
-  Group,
   Loader,
   Alert,
   ScrollArea,
@@ -16,9 +15,8 @@ import {
   ActionIcon,
   Button,
   ThemeIcon,
-  Indicator,
-  Popover,
   Menu,
+  Group,
 } from '@mantine/core';
 import {
   IconCheck,
@@ -31,8 +29,6 @@ import {
   IconRecycle,
   IconActivity,
   IconTrash,
-  IconSortDescendingNumbers,
-  IconSortAscendingNumbers,
   IconEdit,
   IconDotsVertical,
   IconPlayerPlayFilled,
@@ -48,14 +44,13 @@ import {
 } from '~/components/layout/PreferenceProvider';
 import { ShareButton } from '~/components/results/ShareButton';
 import { cn } from '~/components/PollForm/PollModal';
-import { useDisclosure } from '@mantine/hooks';
 import { TableComment } from '~/components/results/TableComment';
 import { modals } from '@mantine/modals';
-import { TimeSlot } from '~/pages/organize/poll';
+import { TimeSlot, VoteValue } from '~/pages/organize/poll';
+import { VoteBadge } from '~/components/results/VoteBadge';
+import { SortingButton } from '~/components/results/SortingButton';
 
 dayjs.extend(utc);
-
-type VoteValue = 'yes' | 'no' | 'ifneedbe';
 
 export function formatDate(value: Date | string | number, fmt: DateFormat) {
   // For string dates in YYYY-MM-DD format, parse as UTC to avoid timezone offset issues
@@ -74,59 +69,6 @@ export function formatDate(value: Date | string | number, fmt: DateFormat) {
     default:
       return d.toISOString().split('T')[0];
   }
-}
-
-function VoteBadge({ value, comment }: { value: VoteValue; comment?: string }) {
-  const [opened, { close, open }] = useDisclosure(false);
-
-  let content = <></>;
-  const normalized = String(value).toLowerCase();
-  if (normalized === 'yes') {
-    content = (
-      <Badge color="green" leftSection={<IconCheck size={14} />} style={{ textTransform: 'none' }}>
-        Yes
-      </Badge>
-    );
-  } else if (normalized === 'no') {
-    content = (
-      <Badge color="red" leftSection={<IconX size={14} />} style={{ textTransform: 'none' }}>
-        No
-      </Badge>
-    );
-  } else if (normalized === 'ifneedbe') {
-    content = (
-      <Badge
-        color="yellow"
-        variant="light"
-        leftSection={<IconQuestionMark size={14} />}
-        style={{ textTransform: 'none' }}
-      >
-        If Need Be
-      </Badge>
-    );
-  } else {
-    content = <Text c="dimmed">—</Text>;
-  }
-  return (
-    <Popover opened={opened} disabled={!comment} position="top-start" withArrow>
-      <Popover.Target>
-        <div onMouseEnter={open} onMouseLeave={close}>
-          <Indicator position="top-start" color="yellow" disabled={!comment}>
-            {content}
-          </Indicator>
-        </div>
-      </Popover.Target>
-      <Popover.Dropdown p="xs">
-        {comment ? (
-          <Text size="sm">{comment}</Text>
-        ) : (
-          <Text size="sm" c="dimmed">
-            No comment
-          </Text>
-        )}
-      </Popover.Dropdown>
-    </Popover>
-  );
 }
 
 type SortColumn = 'date' | 'yes' | 'ifneedbe' | 'no';
@@ -186,6 +128,18 @@ const Page: NextPageWithLayout = () => {
     },
   });
 
+  const deleteWinnerMutation = trpc.poll.deleteWinner.useMutation({
+    onSuccess: () => {
+      utils.poll.fetchPoll.invalidate({ id: id ?? '' });
+    },
+  });
+
+  const deleteVotesMutation = trpc.poll.deleteVotes.useMutation({
+    onSuccess: () => {
+      utils.poll.fetchPoll.invalidate({ id: id ?? '' });
+    },
+  });
+
   const startPoll = () => {
     startPollMutation.mutateAsync({
       id: id ?? '',
@@ -212,6 +166,27 @@ const Page: NextPageWithLayout = () => {
 
   const setWinner = (slot: TimeSlot) => {
     winnerMutation.mutateAsync({ id: id ?? '', winner: slot });
+  };
+
+  const deleteWinner = () => {
+    deleteWinnerMutation.mutateAsync({ id: id ?? '' });
+  };
+
+  const deleteVotes = (userId: string) => {
+    modals.openConfirmModal({
+      title: 'Delete Votes',
+      children: (
+        <Text size="sm">
+          Are you sure you want to delete all votes from this participant? This
+          action cannot be undone.
+        </Text>
+      ),
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      confirmProps: { color: 'red' },
+      onConfirm: () => {
+        deleteVotesMutation.mutateAsync({ pollId: id ?? '', userId });
+      },
+    });
   };
 
   if (!id) {
@@ -300,7 +275,7 @@ const Page: NextPageWithLayout = () => {
     const prev = slotRes.byName.get(name);
     if (prev) {
       if (prev.value === 'yes') slotRes.yes -= 1;
-      else if (prev.value === 'ifneedbe') slotRes.ifneedbe -= 1;
+      else if (prev.value === 'ifNeedBe') slotRes.ifneedbe -= 1;
       else if (prev.value === 'no') slotRes.no -= 1;
     } else {
       slotRes.total += 1;
@@ -309,17 +284,20 @@ const Page: NextPageWithLayout = () => {
     slotRes.byName.set(name, { value, comment: v?.comment });
 
     if (value === 'yes') slotRes.yes += 1;
-    else if (value === 'ifneedbe') slotRes.ifneedbe += 1;
+    else if (value === 'ifNeedBe') slotRes.ifneedbe += 1;
     else if (value === 'no') slotRes.no += 1;
   }
 
-  const voters = Array.from(
-    votes.reduce((set: Set<string>, v: any) => {
+  const voters: { name: string; userId: string }[] = Array.from(
+    votes.reduce((set: Map<string, string>, v: any) => {
       const name = String(v?.name ?? 'Anonymous');
-      set.add(name);
+      const userId = String(v?.userId ?? name);
+      set.set(name, userId);
       return set;
-    }, new Set<string>()),
-  ).sort((a, b) => a.localeCompare(b));
+    }, new Map<string, string>()),
+  )
+    .map(([name, userId]) => ({ name, userId }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const sortedSlots = [...dates].sort((a, b) => {
     const ak = `${a?.date ?? ''} ${a?.startTime ?? ''}`;
@@ -401,7 +379,13 @@ const Page: NextPageWithLayout = () => {
     const score = r.yes * 3 + r.ifneedbe * 1 - r.no * 2;
 
     if (!best || score > best.score) {
+      if (score === 0) {
+        return null;
+      }
       return { slot, score, stats: r };
+    }
+    if (best.score === 0) {
+      return null;
     }
     return best;
   }, null);
@@ -457,7 +441,9 @@ const Page: NextPageWithLayout = () => {
               <ThemeIcon
                 size="md"
                 variant={poll.closedAt ? 'transparent' : 'light'}
-                title={poll.closedAt ? "Closed" : poll.active ? 'Active' : 'Paused'}
+                title={
+                  poll.closedAt ? 'Closed' : poll.active ? 'Active' : 'Paused'
+                }
                 radius="lg"
                 className={cn(
                   poll.closedAt ? '' : poll.active ? 'animate-pulse' : '',
@@ -478,23 +464,25 @@ const Page: NextPageWithLayout = () => {
           </div>
           <div className="flex gap-2 items-center">
             <>
-              {poll.closedAt === undefined && (<ActionIcon
-                variant="filled"
-                size="lg"
-                onClick={poll.active ? pausePoll : startPoll}
-                title={poll.active ? 'Pause Poll' : 'Start Poll'}
-                loading={
-                  poll.active
-                    ? pausePollMutation.isPending
-                    : startPollMutation.isPending
-                }
-              >
-                {poll.active ? (
-                  <IconPlayerPauseFilled size={20} />
-                ) : (
-                  <IconPlayerPlayFilled size={20} />
-                )}
-              </ActionIcon>)}
+              {poll.closedAt === undefined && (
+                <ActionIcon
+                  variant="filled"
+                  size="lg"
+                  onClick={poll.active ? pausePoll : startPoll}
+                  title={poll.active ? 'Pause Poll' : 'Start Poll'}
+                  loading={
+                    poll.active
+                      ? pausePollMutation.isPending
+                      : startPollMutation.isPending
+                  }
+                >
+                  {poll.active ? (
+                    <IconPlayerPauseFilled size={20} />
+                  ) : (
+                    <IconPlayerPlayFilled size={20} />
+                  )}
+                </ActionIcon>
+              )}
 
               <ActionIcon
                 disabled={!poll.active}
@@ -613,23 +601,23 @@ const Page: NextPageWithLayout = () => {
             </div>
           )}
 
-          <Group gap="md" mt="sm">
-            <Badge size="lg" variant="light">
+          <div className="flex gap-4 mt-2">
+            <Badge size="lg" variant="light" className="">
               {voters.length} {voters.length === 1 ? 'Voter' : 'Voters'}
             </Badge>
-            <Badge size="lg" variant="light">
+            <Badge size="lg" variant="light" className="">
               {sortedSlots.length} Time{' '}
               {sortedSlots.length === 1 ? 'Slot' : 'Slots'}
             </Badge>
-          </Group>
+          </div>
         </Stack>
       </Card>
 
       {/* Winner Card */}
-      {winner && (winner.stats.total > 0 || winner.isManuallySelected) && (
+      {winner && (
         <Card withBorder padding="xl">
           <Stack gap="md">
-            <Group gap="sm" align="center">
+            <div className="flex gap-2 items-center">
               <IconTrophy
                 size={36}
                 color="var(--mantine-color-yellow-6)"
@@ -643,12 +631,12 @@ const Page: NextPageWithLayout = () => {
                   Based on final voting decision
                 </Text>
               </div>
-            </Group>
+            </div>
 
             <Divider />
 
             <Stack gap="xs">
-              <Group gap="md" align="flex-start">
+              <div className="flex gap-4 items-start">
                 <div style={{ flex: 1 }}>
                   <Text size="sm" c="dimmed" mb={4}>
                     Date & Time
@@ -667,13 +655,13 @@ const Page: NextPageWithLayout = () => {
                   <Text size="sm" c="dimmed" mb={8}>
                     Voting Breakdown
                   </Text>
-                  <Group gap="xs" wrap="wrap">
+                  <div className="flex gap-2 flex-wrap">
                     <Badge
                       size="lg"
                       color="green"
                       variant="filled"
                       leftSection={<IconCheck size={16} />}
-                      style={{ textTransform: 'none' }}
+                      className=""
                     >
                       {winner.stats.yes} Yes
                     </Badge>
@@ -682,7 +670,7 @@ const Page: NextPageWithLayout = () => {
                       color="yellow"
                       variant="filled"
                       leftSection={<IconQuestionMark size={16} />}
-                      style={{ textTransform: 'none' }}
+                      className=""
                     >
                       {winner.stats.ifneedbe} If Need Be
                     </Badge>
@@ -692,32 +680,32 @@ const Page: NextPageWithLayout = () => {
                         color="red"
                         variant="filled"
                         leftSection={<IconX size={16} />}
-                        style={{ textTransform: 'none' }}
+                        className=""
                       >
                         {winner.stats.no} No
                       </Badge>
                     )}
-                  </Group>
+                  </div>
                   <Text size="sm" c="dimmed" mt={8}>
                     {winner.stats.total}{' '}
                     {winner.stats.total === 1 ? 'vote' : 'votes'} total
                   </Text>
                 </div>
-              </Group>
+              </div>
             </Stack>
           </Stack>
         </Card>
       )}
 
-      {(!winner || (winner.stats.total === 0 && !winner.isManuallySelected)) && (
+      {!winner && (
         <Card withBorder padding="lg">
-          <Group gap="sm">
+          <div className="flex gap-2 items-center">
             <IconAlertCircle size={20} color="var(--mantine-color-dimmed)" />
             <Text c="dimmed">
               No votes yet. The winner will be displayed once participants start
               voting or the organizer selects a time slot manually.
             </Text>
-          </Group>
+          </div>
         </Card>
       )}
 
@@ -745,86 +733,38 @@ const Page: NextPageWithLayout = () => {
               >
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th style={{ width: 1 }}> </Table.Th>
+                    <Table.Th> </Table.Th>
                     <Table.Th onClick={() => handleSort('date')}>
-                      <Group gap="xs">
+                      <div className="flex gap-2 items-center">
                         <span style={{ fontWeight: 700 }}>Time Slot</span>
                         {sortColumn === 'date' && (
-                          <ThemeIcon variant="light" size="sm">
-                            {sortDirection === 'asc' ? (
-                              <IconSortAscendingNumbers
-                                size={16}
-                                title="Sorted Ascending"
-                              />
-                            ) : (
-                              <IconSortDescendingNumbers
-                                size={16}
-                                title="Sorted Descending"
-                              />
-                            )}
-                          </ThemeIcon>
+                          <SortingButton sortDirection={sortDirection} />
                         )}
-                      </Group>
+                      </div>
                     </Table.Th>
                     <Table.Th onClick={() => handleSort('yes')}>
-                      <Group gap="xs">
+                      <div className="flex gap-2 items-center">
                         <span style={{ fontWeight: 700 }}>Yes</span>
                         {sortColumn === 'yes' && (
-                          <ThemeIcon variant="light" size="sm">
-                            {sortDirection === 'asc' ? (
-                              <IconSortAscendingNumbers
-                                size={16}
-                                title="Sorted Ascending"
-                              />
-                            ) : (
-                              <IconSortDescendingNumbers
-                                size={16}
-                                title="Sorted Descending"
-                              />
-                            )}
-                          </ThemeIcon>
+                          <SortingButton sortDirection={sortDirection} />
                         )}
-                      </Group>
+                      </div>
                     </Table.Th>
                     <Table.Th onClick={() => handleSort('ifneedbe')}>
-                      <Group gap="xs">
+                      <div className="flex gap-2 items-center">
                         <span style={{ fontWeight: 700 }}>If Need Be</span>
                         {sortColumn === 'ifneedbe' && (
-                          <ThemeIcon variant="light" size="sm">
-                            {sortDirection === 'asc' ? (
-                              <IconSortAscendingNumbers
-                                size={16}
-                                title="Sorted Ascending"
-                              />
-                            ) : (
-                              <IconSortDescendingNumbers
-                                size={16}
-                                title="Sorted Descending"
-                              />
-                            )}
-                          </ThemeIcon>
+                          <SortingButton sortDirection={sortDirection} />
                         )}
-                      </Group>
+                      </div>
                     </Table.Th>
                     <Table.Th onClick={() => handleSort('no')}>
-                      <Group gap="xs">
+                      <div className="flex gap-2 items-center">
                         <span style={{ fontWeight: 700 }}>No</span>
                         {sortColumn === 'no' && (
-                          <ThemeIcon variant="light" size="sm">
-                            {sortDirection === 'asc' ? (
-                              <IconSortAscendingNumbers
-                                size={16}
-                                title="Sorted Ascending"
-                              />
-                            ) : (
-                              <IconSortDescendingNumbers
-                                size={16}
-                                title="Sorted Descending"
-                              />
-                            )}
-                          </ThemeIcon>
+                          <SortingButton sortDirection={sortDirection} />
                         )}
-                      </Group>
+                      </div>
                     </Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -842,40 +782,56 @@ const Page: NextPageWithLayout = () => {
                     return (
                       <Table.Tr key={slotId}>
                         <Table.Td style={{ whiteSpace: 'nowrap', width: 1 }}>
-                          <Button
-                            styles={{
-                              root: {
-                                backgroundColor:
-                                  winner?.slot.id === slot.id
-                                    ? 'var(--mantine-color-yellow-6)'
-                                    : undefined,
-                                color:
-                                  winner?.slot.id === slot.id
-                                    ? 'black'
-                                    : undefined,
-                                '&:hover': {
+                          <div className="flex gap-1">
+                            <Button
+                              fullWidth
+                              styles={{
+                                root: {
                                   backgroundColor:
                                     winner?.slot.id === slot.id
-                                      ? 'var(--mantine-color-yellow-7)'
+                                      ? 'var(--mantine-color-yellow-6)'
                                       : undefined,
+                                  color:
+                                    winner?.slot.id === slot.id
+                                      ? 'var(--mantine-color-dark-9)'
+                                      : undefined,
+                                  '&:hover': {
+                                    backgroundColor:
+                                      winner?.slot.id === slot.id
+                                        ? 'var(--mantine-color-yellow-7)'
+                                        : undefined,
+                                  },
                                 },
-                              },
-                            }}
-                            onClick={() => setWinner(slot)}
-                            leftSection={
-                              winner?.slot.id === slot.id ? (
-                                <IconTrophy size={12} />
-                              ) : (
-                                <IconTrophyOff size={12} />
-                              )
-                            }
-                            size="compact-sm"
-                            disabled={winner?.slot.id === slot.id}
-                          >
-                            {winner?.slot.id === slot.id
-                              ? 'Winner'
-                              : 'Select as Winner'}
-                          </Button>
+                              }}
+                              onClick={() => setWinner(slot)}
+                              leftSection={
+                                winner?.slot.id === slot.id ? (
+                                  <IconTrophy size={18} />
+                                ) : (
+                                  <IconTrophyOff size={18} />
+                                )
+                              }
+                              size="sm"
+                              disabled={winner?.slot.id === slot.id}
+                              variant={
+                                winner?.slot.id === slot.id ? 'filled' : 'light'
+                              }
+                            >
+                              {winner?.slot.id === slot.id
+                                ? 'Winner'
+                                : 'Select as Winner'}
+                            </Button>
+                            {storedWinner()?.slot.id === slot.id && (
+                              <ActionIcon
+                                size="input-sm"
+                                color="red"
+                                variant="outline"
+                                onClick={deleteWinner}
+                              >
+                                <IconTrash size={18} />
+                              </ActionIcon>
+                            )}
+                          </div>
                         </Table.Td>
                         <Table.Td fw={600}>
                           <Stack gap={2}>
@@ -889,18 +845,33 @@ const Page: NextPageWithLayout = () => {
                             </Text>
                           </Stack>
                         </Table.Td>
-                        <Table.Td>
-                          <Badge color="green" variant="light" size="lg">
+                        <Table.Td align="center">
+                          <Badge
+                            color="green"
+                            variant="light"
+                            size="lg"
+                            className=""
+                          >
                             {r.yes}
                           </Badge>
                         </Table.Td>
-                        <Table.Td>
-                          <Badge color="yellow" variant="light" size="lg">
+                        <Table.Td align="center">
+                          <Badge
+                            color="yellow"
+                            variant="light"
+                            size="lg"
+                            className=""
+                          >
                             {r.ifneedbe}
                           </Badge>
                         </Table.Td>
-                        <Table.Td>
-                          <Badge color="red" variant="light" size="lg">
+                        <Table.Td align="center">
+                          <Badge
+                            color="red"
+                            variant="light"
+                            size="lg"
+                            className=""
+                          >
                             {r.no}
                           </Badge>
                         </Table.Td>
@@ -948,10 +919,19 @@ const Page: NextPageWithLayout = () => {
                     >
                       Time Slot
                     </Table.Th>
-                    {voters.map((name) => {
+                    {voters.map(({ name, userId }) => {
                       return (
-                        <Table.Th key={name} style={{ minWidth: 120 }}>
-                          <TableComment name={name} poll={poll} />
+                        <Table.Th key={userId} style={{ minWidth: 120 }}>
+                          <div className="flex gap-2 justify-between items-center">
+                            <TableComment name={name} poll={poll} />
+                            <ActionIcon
+                              onClick={() => deleteVotes(userId)}
+                              variant="light"
+                              color="red"
+                            >
+                              <IconTrash size={20} />
+                            </ActionIcon>
+                          </div>
                         </Table.Th>
                       );
                     })}
@@ -981,10 +961,10 @@ const Page: NextPageWithLayout = () => {
                             </Text>
                           </Stack>
                         </Table.Td>
-                        {voters.map((name) => {
+                        {voters.map(({ name, userId }) => {
                           const v = r?.byName.get(name);
                           return (
-                            <Table.Td key={name}>
+                            <Table.Td key={userId}>
                               {v ? (
                                 <VoteBadge
                                   value={v?.value}

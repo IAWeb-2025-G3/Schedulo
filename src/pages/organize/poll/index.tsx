@@ -15,6 +15,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
 export const ZodComment = z.object({
+  userId: z.string(),
   comment: z.string(),
   name: z.string(),
 });
@@ -32,6 +33,7 @@ export const ZodVoteValue = z.enum(['yes', 'no', 'ifNeedBe']);
 
 export type VoteValue = z.infer<typeof ZodVoteValue>;
 export const ZodVote = z.object({
+  userId: z.string(),
   pollId: z.string(),
   name: z.string().min(1).max(60),
   timeSlotId: z.string(),
