@@ -72,6 +72,12 @@ export async function verifyAdminCookie(token?: string | null) {
   const [value, sig] = token.split('.');
   if (!value || !sig) return null;
 
+  const exp = Number(value);
+  if (!Number.isFinite(exp)) return null;
+
+  const now = Math.floor(Date.now() / 1000);
+  if (exp < now) return null;
+
   const expectedSig = await hmacSha256Base64Url(
     value,
     env.ORGANIZER_SESSION_SECRET,
@@ -81,5 +87,5 @@ export async function verifyAdminCookie(token?: string | null) {
   const b = base64UrlToUint8Array(expectedSig);
   if (!timingSafeEqualBytes(a, b)) return null;
 
-  return value;
+  return { exp };
 }

@@ -36,6 +36,7 @@
     "@trpc/server": "npm:@trpc/server",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.0.0",
+    "cookie": "^1.1.1",
     "dayjs": "^1.11.19",
     "next": "^15.3.8",
     "react": "^19.1.0",
