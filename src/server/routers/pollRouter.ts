@@ -80,7 +80,13 @@ export const pollRouter = router({
   }),
   deleteVotes: publicProcedure
     .input(z.object({ pollId: z.string(), userId: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.organizerId) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Organizer not authenticated',
+        });
+      }
       await ensureDir();
       const existingContent = await fs.readFile(pollPath(input.pollId), 'utf8');
       const existingPoll = ZodPoll.parse(JSON.parse(existingContent));
