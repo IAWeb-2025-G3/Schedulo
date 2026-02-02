@@ -100,9 +100,15 @@ const Page: NextPageWithLayout = () => {
                       {poll.title}
                     </Text>
                     <ThemeIcon
-                      size="xs"
+                      size="sm"
                       variant={poll.closedAt ? 'transparent' : 'light'}
-                      title={poll.closedAt ? "Closed" : poll.active ? 'Active' : 'Paused'}
+                      title={
+                        poll.closedAt
+                          ? 'Closed'
+                          : poll.active
+                            ? 'Active'
+                            : 'Paused'
+                      }
                       radius="lg"
                       className={cn(
                         poll.closedAt ? '' : poll.active ? 'animate-pulse' : '',
@@ -116,11 +122,11 @@ const Page: NextPageWithLayout = () => {
                       }
                     >
                       {poll.closedAt ? (
-                        <IconLock size={12} />
+                        <IconLock size={16} />
                       ) : poll.active ? (
-                        <IconActivity size={12} />
+                        <IconActivity size={16} />
                       ) : (
-                        <IconPlayerPauseFilled size={12} />
+                        <IconPlayerPauseFilled size={16} />
                       )}
                     </ThemeIcon>
                   </div>
