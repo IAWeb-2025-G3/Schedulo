@@ -71,7 +71,7 @@ export function formatDate(value: Date | string | number, fmt: DateFormat) {
   }
 }
 
-type SortColumn = 'date' | 'yes' | 'ifneedbe' | 'no';
+type SortColumn = 'date' | 'yes' | 'ifNeedBe' | 'no';
 
 const Page: NextPageWithLayout = () => {
   const router = useRouter();
@@ -140,36 +140,36 @@ const Page: NextPageWithLayout = () => {
     },
   });
 
-  const startPoll = () => {
-    startPollMutation.mutateAsync({
+  const startPoll = async () => {
+    await startPollMutation.mutateAsync({
       id: id ?? '',
     });
   };
 
-  const pausePoll = () => {
-    pausePollMutation.mutateAsync({
+  const pausePoll = async () => {
+    await pausePollMutation.mutateAsync({
       id: id ?? '',
     });
   };
 
-  const closePoll = () => {
-    closePollMutation.mutateAsync({
+  const closePoll = async () => {
+    await closePollMutation.mutateAsync({
       id: id ?? '',
     });
   };
 
-  const reopenPoll = () => {
-    reopenPollMutation.mutateAsync({
+  const reopenPoll = async () => {
+    await reopenPollMutation.mutateAsync({
       id: id ?? '',
     });
   };
 
-  const setWinner = (slot: TimeSlot) => {
-    winnerMutation.mutateAsync({ id: id ?? '', winner: slot });
+  const setWinner = async (slot: TimeSlot) => {
+    await winnerMutation.mutateAsync({ id: id ?? '', winner: slot });
   };
 
-  const deleteWinner = () => {
-    deleteWinnerMutation.mutateAsync({ id: id ?? '' });
+  const deleteWinner = async () => {
+    await deleteWinnerMutation.mutateAsync({ id: id ?? '' });
   };
 
   const deleteVotes = (userId: string) => {
@@ -242,7 +242,7 @@ const Page: NextPageWithLayout = () => {
     string,
     {
       yes: number;
-      ifneedbe: number;
+      ifNeedBe: number;
       no: number;
       total: number;
       byName: Map<string, { value: VoteValue; comment?: string }>;
@@ -254,7 +254,7 @@ const Page: NextPageWithLayout = () => {
     if (existing) return existing;
     const fresh = {
       yes: 0,
-      ifneedbe: 0,
+      ifNeedBe: 0,
       no: 0,
       total: 0,
       byName: new Map<string, { value: VoteValue; comment?: string }>(),
@@ -268,14 +268,14 @@ const Page: NextPageWithLayout = () => {
     if (!slotId) continue;
 
     const name = String(v?.name ?? 'Anonymous');
-    const value: VoteValue = String(v?.value ?? '').toLowerCase() as VoteValue;
+    const value: VoteValue = String(v?.value ?? '') as VoteValue;
 
     const slotRes = ensureSlot(slotId);
 
     const prev = slotRes.byName.get(name);
     if (prev) {
       if (prev.value === 'yes') slotRes.yes -= 1;
-      else if (prev.value === 'ifNeedBe') slotRes.ifneedbe -= 1;
+      else if (prev.value === 'ifNeedBe') slotRes.ifNeedBe -= 1;
       else if (prev.value === 'no') slotRes.no -= 1;
     } else {
       slotRes.total += 1;
@@ -284,7 +284,7 @@ const Page: NextPageWithLayout = () => {
     slotRes.byName.set(name, { value, comment: v?.comment });
 
     if (value === 'yes') slotRes.yes += 1;
-    else if (value === 'ifNeedBe') slotRes.ifneedbe += 1;
+    else if (value === 'ifNeedBe') slotRes.ifNeedBe += 1;
     else if (value === 'no') slotRes.no += 1;
   }
 
@@ -311,14 +311,14 @@ const Page: NextPageWithLayout = () => {
     const bId = String(b?.id ?? '');
     const aRes = resultsBySlot.get(aId) ?? {
       yes: 0,
-      ifneedbe: 0,
+      ifNeedBe: 0,
       no: 0,
       total: 0,
       byName: new Map(),
     };
     const bRes = resultsBySlot.get(bId) ?? {
       yes: 0,
-      ifneedbe: 0,
+      ifNeedBe: 0,
       no: 0,
       total: 0,
       byName: new Map(),
@@ -335,8 +335,8 @@ const Page: NextPageWithLayout = () => {
       }
     } else if (sortColumn === 'yes') {
       comparison = aRes.yes - bRes.yes;
-    } else if (sortColumn === 'ifneedbe') {
-      comparison = aRes.ifneedbe - bRes.ifneedbe;
+    } else if (sortColumn === 'ifNeedBe') {
+      comparison = aRes.ifNeedBe - bRes.ifNeedBe;
     } else if (sortColumn === 'no') {
       comparison = aRes.no - bRes.no;
     }
@@ -353,7 +353,7 @@ const Page: NextPageWithLayout = () => {
     }
   };
 
-  // Calculate winner - slot with most "yes" votes, then most "ifneedbe", then least "no"
+  // Calculate winner - slot with most "yes" votes, then most "ifNeedBe", then least "no"
   const calcWinner = sortedSlots.reduce<{
     slot: any;
     score: number;
@@ -363,7 +363,7 @@ const Page: NextPageWithLayout = () => {
     const slotId = String(slot?.id ?? '');
     const r = resultsBySlot.get(slotId) ?? {
       yes: 0,
-      ifneedbe: 0,
+      ifNeedBe: 0,
       no: 0,
       total: 0,
       byName: new Map(),
@@ -374,9 +374,9 @@ const Page: NextPageWithLayout = () => {
       return best;
     }
 
-    // Score: prioritize yes votes, then ifneedbe, penalize no votes
-    // Weight: yes = 3, ifneedbe = 1, no = -2
-    const score = r.yes * 3 + r.ifneedbe * 1 - r.no * 2;
+    // Score: prioritize yes votes, then ifNeedBe, penalize no votes
+    // Weight: yes = 3, ifNeedBe = 1, no = -2
+    const score = r.yes * 3 + r.ifNeedBe * 1 - r.no * 2;
 
     if (!best || score > best.score) {
       return { slot, score, stats: r };
@@ -389,7 +389,7 @@ const Page: NextPageWithLayout = () => {
       const slotId = String(poll.winner?.id ?? '');
       const r = resultsBySlot.get(slotId) ?? {
         yes: 0,
-        ifneedbe: 0,
+        ifNeedBe: 0,
         no: 0,
         total: 0,
         byName: new Map(),
@@ -665,7 +665,7 @@ const Page: NextPageWithLayout = () => {
                         {winner.stats.yes} Yes
                       </Badge>
                     )}
-                    {winner.stats.ifneedbe > 0 && (
+                    {winner.stats.ifNeedBe > 0 && (
                       <Badge
                         size="lg"
                         color="yellow"
@@ -673,7 +673,7 @@ const Page: NextPageWithLayout = () => {
                         leftSection={<IconQuestionMark size={16} />}
                         className=""
                       >
-                        {winner.stats.ifneedbe} If Need Be
+                        {winner.stats.ifNeedBe} If Need Be
                       </Badge>
                     )}
                     {winner.stats.no > 0 && (
@@ -748,10 +748,10 @@ const Page: NextPageWithLayout = () => {
                         )}
                       </div>
                     </Table.Th>
-                    <Table.Th onClick={() => handleSort('ifneedbe')}>
+                    <Table.Th onClick={() => handleSort('ifNeedBe')}>
                       <div className="flex gap-2 items-center">
                         <span style={{ fontWeight: 700 }}>If Need Be</span>
-                        {sortColumn === 'ifneedbe' && (
+                        {sortColumn === 'ifNeedBe' && (
                           <SortingButton sortDirection={sortDirection} />
                         )}
                       </div>
@@ -771,7 +771,7 @@ const Page: NextPageWithLayout = () => {
                     const slotId = String(slot?.id ?? '');
                     const r = resultsBySlot.get(slotId) ?? {
                       yes: 0,
-                      ifneedbe: 0,
+                      ifNeedBe: 0,
                       no: 0,
                       total: 0,
                       byName: new Map(),
@@ -810,7 +810,10 @@ const Page: NextPageWithLayout = () => {
                                 )
                               }
                               size="sm"
-                              disabled={winner?.slot.id === slot.id}
+                              disabled={
+                                winner?.slot.id === slot.id ||
+                                poll.closedAt !== undefined
+                              }
                               variant={
                                 winner?.slot.id === slot.id ? 'filled' : 'light'
                               }
@@ -825,6 +828,7 @@ const Page: NextPageWithLayout = () => {
                                 color="red"
                                 variant="outline"
                                 onClick={deleteWinner}
+                                disabled={poll.closedAt !== undefined}
                               >
                                 <IconTrash size={18} />
                               </ActionIcon>
@@ -860,7 +864,7 @@ const Page: NextPageWithLayout = () => {
                             size="lg"
                             className=""
                           >
-                            {r.ifneedbe}
+                            {r.ifNeedBe}
                           </Badge>
                         </Table.Td>
                         <Table.Td align="center">

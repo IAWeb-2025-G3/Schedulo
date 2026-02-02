@@ -13,7 +13,7 @@ export const VoteBadge = ({
   const [opened, { close, open }] = useDisclosure(false);
 
   let content = <></>;
-  const normalized = String(value).toLowerCase();
+  const normalized = String(value);
   if (normalized === 'yes') {
     content = (
       <Badge
@@ -38,7 +38,7 @@ export const VoteBadge = ({
         No
       </Badge>
     );
-  } else if (normalized === 'ifneedbe') {
+  } else if (normalized === 'ifNeedBe') {
     content = (
       <Badge
         color="yellow"

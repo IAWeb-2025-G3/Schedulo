@@ -23,7 +23,7 @@ import { NextPageWithLayout } from '~/pages/_app';
 import { usePreferences } from '~/components/layout/PreferenceProvider';
 import { formatDate } from '~/pages/organize/[id]/results';
 
-type VoteValue = 'yes' | 'no' | 'ifneedbe';
+type VoteValue = 'yes' | 'no' | 'ifNeedBe';
 
 const Page: NextPageWithLayout = () => {
   const router = useRouter();
@@ -102,10 +102,10 @@ const Page: NextPageWithLayout = () => {
     string,
     {
       yes: number;
-      ifneedbe: number;
+      ifNeedBe: number;
       no: number;
       total: number;
-      byName: Map<string, VoteValue>;
+      byName: Map<string, { value: VoteValue; comment?: string }>;
     }
   >();
 
@@ -114,10 +114,10 @@ const Page: NextPageWithLayout = () => {
     if (existing) return existing;
     const fresh = {
       yes: 0,
-      ifneedbe: 0,
+      ifNeedBe: 0,
       no: 0,
       total: 0,
-      byName: new Map<string, VoteValue>(),
+      byName: new Map<string, { value: VoteValue; comment?: string }>(),
     };
     resultsBySlot.set(slotId, fresh);
     return fresh;
@@ -128,23 +128,23 @@ const Page: NextPageWithLayout = () => {
     if (!slotId) continue;
 
     const name = String(v?.name ?? 'Anonymous');
-    const value: VoteValue = String(v?.value ?? '').toLowerCase() as VoteValue;
+    const value: VoteValue = String(v?.value ?? '') as VoteValue;
 
     const slotRes = ensureSlot(slotId);
 
     const prev = slotRes.byName.get(name);
     if (prev) {
-      if (prev === 'yes') slotRes.yes -= 1;
-      else if (prev === 'ifneedbe') slotRes.ifneedbe -= 1;
-      else if (prev === 'no') slotRes.no -= 1;
+      if (prev.value === 'yes') slotRes.yes -= 1;
+      else if (prev.value === 'ifNeedBe') slotRes.ifNeedBe -= 1;
+      else if (prev.value === 'no') slotRes.no -= 1;
     } else {
       slotRes.total += 1;
     }
 
-    slotRes.byName.set(name, value);
+    slotRes.byName.set(name, { value, comment: v?.comment });
 
     if (value === 'yes') slotRes.yes += 1;
-    else if (value === 'ifneedbe') slotRes.ifneedbe += 1;
+    else if (value === 'ifNeedBe') slotRes.ifNeedBe += 1;
     else if (value === 'no') slotRes.no += 1;
   }
 
@@ -162,7 +162,7 @@ const Page: NextPageWithLayout = () => {
     return ak.localeCompare(bk);
   });
 
-  // Calculate winner - slot with most "yes" votes, then most "ifneedbe", then least "no"
+  // Calculate winner - slot with most "yes" votes, then most "ifNeedBe", then least "no"
   const calcWinner = sortedSlots.reduce<{
     slot: any;
     score: number;
@@ -172,15 +172,20 @@ const Page: NextPageWithLayout = () => {
     const slotId = String(slot?.id ?? '');
     const r = resultsBySlot.get(slotId) ?? {
       yes: 0,
-      ifneedbe: 0,
+      ifNeedBe: 0,
       no: 0,
       total: 0,
       byName: new Map(),
     };
 
-    // Score: prioritize yes votes, then ifneedbe, penalize no votes
-    // Weight: yes = 3, ifneedbe = 1, no = -2
-    const score = r.yes * 3 + r.ifneedbe * 1 - r.no * 2;
+    // Do not select a winner if there are no votes yet
+    if (r.total === 0) {
+      return best;
+    }
+
+    // Score: prioritize yes votes, then ifNeedBe, penalize no votes
+    // Weight: yes = 3, ifNeedBe = 1, no = -2
+    const score = r.yes * 3 + r.ifNeedBe * 1 - r.no * 2;
 
     if (!best || score > best.score) {
       return { slot, score, stats: r };
@@ -193,7 +198,7 @@ const Page: NextPageWithLayout = () => {
       const slotId = String(poll.winner?.id ?? '');
       const r = resultsBySlot.get(slotId) ?? {
         yes: 0,
-        ifneedbe: 0,
+        ifNeedBe: 0,
         no: 0,
         total: 0,
         byName: new Map(),
@@ -294,27 +299,35 @@ const Page: NextPageWithLayout = () => {
 
                 <div style={{ flex: 1 }}>
                   <Text size="sm" c="dimmed" mb={8}>
-                    Voting Breakdown
+                    Voting Breakdown -{' '}
+                    <Text size="sm" c="dimmed" mt={8} span>
+                      {winner.stats.total}{' '}
+                      {winner.stats.total === 1 ? 'vote' : 'votes'}
+                    </Text>
                   </Text>
                   <Group gap="xs" wrap="wrap">
-                    <Badge
-                      size="lg"
-                      color="green"
-                      variant="filled"
-                      leftSection={<IconCheck size={16} />}
-                      style={{ textTransform: 'none' }}
-                    >
-                      {winner.stats.yes} Yes
-                    </Badge>
-                    <Badge
-                      size="lg"
-                      color="yellow"
-                      variant="filled"
-                      leftSection={<IconQuestionMark size={16} />}
-                      style={{ textTransform: 'none' }}
-                    >
-                      {winner.stats.ifneedbe} If Need Be
-                    </Badge>
+                    {winner.stats.yes > 0 && (
+                      <Badge
+                        size="lg"
+                        color="green"
+                        variant="filled"
+                        leftSection={<IconCheck size={16} />}
+                        style={{ textTransform: 'none' }}
+                      >
+                        {winner.stats.yes} Yes
+                      </Badge>
+                    )}
+                    {winner.stats.ifNeedBe > 0 && (
+                      <Badge
+                        size="lg"
+                        color="yellow"
+                        variant="filled"
+                        leftSection={<IconQuestionMark size={16} />}
+                        style={{ textTransform: 'none' }}
+                      >
+                        {winner.stats.ifNeedBe} If Need Be
+                      </Badge>
+                    )}
                     {winner.stats.no > 0 && (
                       <Badge
                         size="lg"
@@ -327,10 +340,6 @@ const Page: NextPageWithLayout = () => {
                       </Badge>
                     )}
                   </Group>
-                  <Text size="sm" c="dimmed" mt={8}>
-                    {winner.stats.total}{' '}
-                    {winner.stats.total === 1 ? 'vote' : 'votes'} total
-                  </Text>
                 </div>
               </Group>
             </Stack>
@@ -338,14 +347,12 @@ const Page: NextPageWithLayout = () => {
         </Card>
       )}
 
-      {(!winner || (winner.stats.total === 0 && !winner.isManuallySelected)) && (
+      {(!winner ||
+        (winner.stats.total === 0 && !winner.isManuallySelected)) && (
         <Card withBorder padding="lg">
           <Group gap="sm">
             <IconAlertCircle size={20} color="var(--mantine-color-dimmed)" />
-            <Text c="dimmed">
-              No votes yet. The winner will be displayed once participants start
-              voting or the organizer selects a time slot manually.
-            </Text>
+            <Text c="dimmed">No votes submitted.</Text>
           </Group>
         </Card>
       )}
