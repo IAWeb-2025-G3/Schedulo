@@ -654,24 +654,28 @@ const Page: NextPageWithLayout = () => {
                     </Text>
                   </Text>
                   <div className="flex gap-2 flex-wrap">
-                    <Badge
-                      size="lg"
-                      color="green"
-                      variant="filled"
-                      leftSection={<IconCheck size={16} />}
-                      className=""
-                    >
-                      {winner.stats.yes} Yes
-                    </Badge>
-                    <Badge
-                      size="lg"
-                      color="yellow"
-                      variant="filled"
-                      leftSection={<IconQuestionMark size={16} />}
-                      className=""
-                    >
-                      {winner.stats.ifneedbe} If Need Be
-                    </Badge>
+                    {winner.stats.yes > 0 && (
+                      <Badge
+                        size="lg"
+                        color="green"
+                        variant="filled"
+                        leftSection={<IconCheck size={16} />}
+                        className=""
+                      >
+                        {winner.stats.yes} Yes
+                      </Badge>
+                    )}
+                    {winner.stats.ifneedbe > 0 && (
+                      <Badge
+                        size="lg"
+                        color="yellow"
+                        variant="filled"
+                        leftSection={<IconQuestionMark size={16} />}
+                        className=""
+                      >
+                        {winner.stats.ifneedbe} If Need Be
+                      </Badge>
+                    )}
                     {winner.stats.no > 0 && (
                       <Badge
                         size="lg"
