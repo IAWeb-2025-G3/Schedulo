@@ -639,7 +639,7 @@ const Page: NextPageWithLayout = () => {
                     <Text fw={700} size="xl">
                       {formatDate(winner.slot.date, dateFormat)}
                     </Text>
-                    <Text c="gray.4" fw={600} size="xl">
+                    <Text c="dimmed" fw={600} size="xl">
                       {winner.slot.startTime} – {winner.slot.endTime}
                     </Text>
                   </Group>
