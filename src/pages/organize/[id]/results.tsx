@@ -369,7 +369,7 @@ const Page: NextPageWithLayout = () => {
       byName: new Map(),
     };
 
-    // Do not select a winnner if there are no votes yet
+    // Do not select a winner if there are no votes yet
     if (r.total === 0) {
       return best;
     }
@@ -379,13 +379,7 @@ const Page: NextPageWithLayout = () => {
     const score = r.yes * 3 + r.ifneedbe * 1 - r.no * 2;
 
     if (!best || score > best.score) {
-      if (score === 0) {
-        return null;
-      }
       return { slot, score, stats: r };
-    }
-    if (best.score === 0) {
-      return null;
     }
     return best;
   }, null);
