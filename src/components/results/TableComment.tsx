@@ -1,6 +1,6 @@
 import { Popover, Indicator, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Poll } from '~/pages/organize/poll';
+import { Poll } from '~/server/routers/schemas';
 
 type Props = {
   name: string;

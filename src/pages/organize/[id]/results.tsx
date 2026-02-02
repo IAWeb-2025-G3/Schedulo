@@ -46,9 +46,9 @@ import { ShareButton } from '~/components/results/ShareButton';
 import { cn } from '~/components/PollForm/PollModal';
 import { TableComment } from '~/components/results/TableComment';
 import { modals } from '@mantine/modals';
-import { TimeSlot, VoteValue } from '~/pages/organize/poll';
 import { VoteBadge } from '~/components/results/VoteBadge';
 import { SortingButton } from '~/components/results/SortingButton';
+import { TimeSlot, VoteValue } from '~/server/routers/schemas';
 
 dayjs.extend(utc);
 
@@ -653,7 +653,11 @@ const Page: NextPageWithLayout = () => {
 
                 <div style={{ flex: 1 }}>
                   <Text size="sm" c="dimmed" mb={8}>
-                    Voting Breakdown
+                    Voting Breakdown -{' '}
+                    <Text size="sm" c="dimmed" mt={8} span>
+                      {winner.stats.total}{' '}
+                      {winner.stats.total === 1 ? 'vote' : 'votes'}
+                    </Text>
                   </Text>
                   <div className="flex gap-2 flex-wrap">
                     <Badge
@@ -686,10 +690,6 @@ const Page: NextPageWithLayout = () => {
                       </Badge>
                     )}
                   </div>
-                  <Text size="sm" c="dimmed" mt={8}>
-                    {winner.stats.total}{' '}
-                    {winner.stats.total === 1 ? 'vote' : 'votes'} total
-                  </Text>
                 </div>
               </div>
             </Stack>

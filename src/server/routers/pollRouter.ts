@@ -1,11 +1,11 @@
 import { publicProcedure, router } from '~/server/trpc';
 import { promises as fs } from 'fs';
-import { Poll, ZodPoll, ZodTimeSlot } from '~/pages/organize/poll';
 import path from 'path';
 import crypto from 'crypto';
 import z from 'zod';
 import { TRPCError } from '@trpc/server';
 import { env } from '~/server/env';
+import { ZodPoll, Poll, ZodTimeSlot } from '~/server/routers/schemas';
 
 const DATA_DIR = env.DATA_DIR ?? path.join(process.cwd(), 'data');
 const POLLS_DIR = path.join(DATA_DIR, 'polls');
@@ -136,7 +136,7 @@ export const pollRouter = router({
       const updatedPoll: Poll = {
         ...poll,
         closedAt: new Date(),
-        active: false
+        active: false,
       };
       const tmp = `${pollPath(input.id)}.${crypto.randomBytes(6).toString('hex')}.tmp`;
       await fs.writeFile(tmp, JSON.stringify(updatedPoll, null, 2), 'utf8');

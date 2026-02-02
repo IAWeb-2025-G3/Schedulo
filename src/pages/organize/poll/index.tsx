@@ -3,7 +3,6 @@ import type { NextPageWithLayout } from '../../_app';
 import { EventCardPoll } from '~/components/PollForm/EventCardPoll';
 import { useForm } from '@mantine/form';
 import { ActionIcon, Button, Text, Title, Tooltip } from '@mantine/core';
-import z from 'zod';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
 import { IconArrowLeft, IconSend } from '@tabler/icons-react';
@@ -11,52 +10,9 @@ import { useRouter } from 'next/router';
 import dayjs from 'dayjs';
 import { useState, useEffect } from 'react';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { Poll } from '~/server/routers/schemas';
 
 dayjs.extend(customParseFormat);
-
-export const ZodComment = z.object({
-  userId: z.string(),
-  comment: z.string(),
-  name: z.string(),
-});
-
-export const ZodTimeSlot = z.object({
-  id: z.string(),
-  date: z.string(),
-  startTime: z.string(),
-  endTime: z.string(),
-});
-
-export type TimeSlot = z.infer<typeof ZodTimeSlot>;
-
-export const ZodVoteValue = z.enum(['yes', 'no', 'ifNeedBe']);
-
-export type VoteValue = z.infer<typeof ZodVoteValue>;
-export const ZodVote = z.object({
-  userId: z.string(),
-  pollId: z.string(),
-  name: z.string().min(1).max(60),
-  timeSlotId: z.string(),
-  value: ZodVoteValue,
-  comment: z.string().optional(),
-});
-export const ZodPoll = z.object({
-  id: z.string().optional(),
-  title: z.string().min(1, 'Title is required'),
-  location: z.string().optional(),
-  description: z.string().optional(),
-  dates: z.array(ZodTimeSlot),
-  votes: z.array(ZodVote).optional(),
-  createdAt: z.coerce.date(),
-  organizerId: z.string(),
-  closedAt: z.coerce.date().optional(),
-  comment: ZodComment.array().optional(),
-  active: z.boolean().optional(),
-  winner: ZodTimeSlot.optional(),
-});
-export type Poll = z.infer<typeof ZodPoll>;
-
-export type ZodVote = z.infer<typeof ZodVote>;
 
 const Page: NextPageWithLayout = () => {
   const form = useForm<Poll>({

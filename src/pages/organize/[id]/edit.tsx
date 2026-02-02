@@ -3,21 +3,31 @@ import { CalendarCardPoll } from '~/components/PollForm/CalendarCardPoll';
 import type { NextPageWithLayout } from '../../_app';
 import { EventCardPoll } from '~/components/PollForm/EventCardPoll';
 import { useForm } from '@mantine/form';
-import { ActionIcon, Button, Text, Title, Loader, Alert, Stack, Tooltip } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Text,
+  Title,
+  Loader,
+  Alert,
+  Stack,
+  Tooltip,
+} from '@mantine/core';
 import { trpc } from '~/utils/trpc';
 import { notifications } from '@mantine/notifications';
 import { IconArrowLeft, IconSend, IconAlertCircle } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-import { Poll } from '../poll';
+import { Poll } from '~/server/routers/schemas';
 
 const Page: NextPageWithLayout = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const { data: poll, isLoading, error } = trpc.poll.fetchPoll.useQuery(
-    { id: id as string },
-    { enabled: !!id }
-  );
+  const {
+    data: poll,
+    isLoading,
+    error,
+  } = trpc.poll.fetchPoll.useQuery({ id: id as string }, { enabled: !!id });
 
   const form = useForm<Poll>({
     initialValues: {
@@ -48,6 +58,8 @@ const Page: NextPageWithLayout = () => {
         comment: poll.comment,
       });
     }
+    // eslint-disable-next-line react-hooks/react-compiler
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [poll]);
 
   const storePoll = trpc.poll.storePoll.useMutation({
@@ -140,8 +152,16 @@ const Page: NextPageWithLayout = () => {
       </div>
       <Tooltip
         color="yellow"
-        disabled={form.values.title.trim() !== '' && form.values.dates.length > 0}
-        label={<Text>{!form.values.title.trim() ? 'Please enter a title!' : 'Please add at least one time slot!'}</Text>}
+        disabled={
+          form.values.title.trim() !== '' && form.values.dates.length > 0
+        }
+        label={
+          <Text>
+            {!form.values.title.trim()
+              ? 'Please enter a title!'
+              : 'Please add at least one time slot!'}
+          </Text>
+        }
         openDelay={500}
         withArrow
       >

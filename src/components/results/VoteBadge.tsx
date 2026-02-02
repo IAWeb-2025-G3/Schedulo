@@ -1,7 +1,7 @@
 import { Badge, Popover, Indicator, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconCheck, IconX, IconQuestionMark } from '@tabler/icons-react';
-import { VoteValue } from '~/pages/organize/poll';
+import { VoteValue } from '~/server/routers/schemas';
 
 export const VoteBadge = ({
   value,

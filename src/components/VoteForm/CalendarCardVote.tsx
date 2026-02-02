@@ -10,7 +10,6 @@ import {
 } from '@mantine/core';
 import { Calendar } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { Poll } from '~/pages/organize/poll';
 import dayjs from 'dayjs';
 import { IconArrowBack, IconSend } from '@tabler/icons-react';
 import { trpc } from '~/utils/trpc';
@@ -19,6 +18,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { modals } from '@mantine/modals';
 import { TimeSlotCard } from '~/components/VoteForm/TimeSlotcard';
+import { Poll } from '~/server/routers/schemas';
 type Props = {
   data: Poll;
 };
@@ -60,9 +60,22 @@ export const CalendarCardVote = ({ data }: Props) => {
 
   const handleSubmit = async (values: Poll) => {
     const userId = crypto.randomUUID();
+    const unvotedSlots = data.dates.filter(
+      (slot) => !values.votes?.some((vote) => vote.timeSlotId === slot.id),
+    );
     const payload: Poll = {
       ...values,
-      votes: form.values.votes?.map((vote) => ({ ...vote, name, userId })),
+      votes: [
+        ...(form.values.votes?.map((vote) => ({ ...vote, name, userId })) ??
+          []),
+        ...unvotedSlots.map((slot) => ({
+          pollId: data.id!,
+          name,
+          userId,
+          timeSlotId: slot.id,
+          // No vote value means no vote cast
+        })),
+      ],
       comment: comment.trim() ? [{ name, comment, userId }] : [],
     };
 

@@ -19,7 +19,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { CommentModal } from '~/components/VoteForm/CommentModal';
-import { Poll, TimeSlot, VoteValue } from '~/pages/organize/poll';
+import { TimeSlot, Poll, VoteValue } from '~/server/routers/schemas';
 
 type Props = {
   slot: TimeSlot;
@@ -37,13 +37,20 @@ export const TimeSlotCard = ({ slot, form, data }: Props) => {
       const next = [...current!];
       const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
       if (voteIndex === -1) {
-        next.push({ pollId: data.id!, name: '', timeSlotId: id, value: 'yes' });
+        next.push({
+          pollId: data.id!,
+          name: '',
+          userId: '',
+          timeSlotId: id,
+          value: 'yes',
+        });
       } else if (next[voteIndex].value === 'yes') {
         next.splice(voteIndex, 1);
       } else {
         next[voteIndex] = {
           pollId: data.id!,
           name: '',
+          userId: '',
           timeSlotId: id,
           value: 'yes',
         };
@@ -56,13 +63,20 @@ export const TimeSlotCard = ({ slot, form, data }: Props) => {
       const next = [...current!];
       const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
       if (voteIndex === -1) {
-        next.push({ pollId: data.id!, name: '', timeSlotId: id, value: 'no' });
+        next.push({
+          pollId: data.id!,
+          name: '',
+          userId: '',
+          timeSlotId: id,
+          value: 'no',
+        });
       } else if (next[voteIndex].value === 'no') {
         next.splice(voteIndex, 1);
       } else {
         next[voteIndex] = {
           pollId: data.id!,
           name: '',
+          userId: '',
           timeSlotId: id,
           value: 'no',
         };
@@ -78,15 +92,18 @@ export const TimeSlotCard = ({ slot, form, data }: Props) => {
       if (voteIndex === -1) {
         next.push({
           pollId: data.id!,
+          userId: '',
           name: '',
           timeSlotId: id,
           value: 'ifNeedBe',
         });
       } else if (next[voteIndex].value === 'ifNeedBe') {
         next.splice(voteIndex, 1);
-      } else {        next[voteIndex] = {
+      } else {
+        next[voteIndex] = {
           pollId: data.id!,
           name: '',
+          userId: '',
           timeSlotId: id,
           value: 'ifNeedBe',
         };
@@ -112,6 +129,15 @@ export const TimeSlotCard = ({ slot, form, data }: Props) => {
       const voteIndex = next.findIndex((vote) => vote.timeSlotId === id);
       if (voteIndex !== -1) {
         next[voteIndex].comment = comment;
+      } else {
+        next.push({
+          pollId: data.id!,
+          name: '',
+          userId: '',
+          timeSlotId: id,
+          value: undefined,
+          comment: comment,
+        });
       }
       return next;
     });
