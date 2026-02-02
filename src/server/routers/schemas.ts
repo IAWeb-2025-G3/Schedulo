@@ -3,7 +3,6 @@ import z from 'zod';
 export const ZodComment = z.object({
   userId: z.string(),
   comment: z.string(),
-  name: z.string(),
 });
 
 export const ZodTimeSlot = z.object({
@@ -41,5 +40,3 @@ export const ZodPoll = z.object({
   winner: ZodTimeSlot.optional(),
 });
 export type Poll = z.infer<typeof ZodPoll>;
-
-export type ZodVote = z.infer<typeof ZodVote>;

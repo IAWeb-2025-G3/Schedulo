@@ -926,7 +926,11 @@ const Page: NextPageWithLayout = () => {
                       return (
                         <Table.Th key={userId} style={{ minWidth: 120 }}>
                           <div className="flex gap-2 justify-between items-center">
-                            <TableComment name={name} poll={poll} />
+                            <TableComment
+                              userId={userId}
+                              name={name}
+                              poll={poll}
+                            />
                             <ActionIcon
                               onClick={() => deleteVotes(userId)}
                               variant="light"
