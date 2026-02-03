@@ -143,11 +143,11 @@ export const TimeSlotCard = ({ slot, form, data }: Props) => {
     });
   };
 
-  const handleComment = (id: string) => {
+  const handleComment = (id: string, hasComment: boolean, comment?: string) => {
     modals.open({
-      title: 'Add Comment',
+      title: hasComment ? 'Edit Comment' : 'Add Comment',
       children: (
-        <CommentModal addComment={(comment) => addComment(id, comment)} />
+        <CommentModal addComment={(c) => addComment(id, c)} comment={comment} />
       ),
     });
   };
@@ -164,6 +164,10 @@ export const TimeSlotCard = ({ slot, form, data }: Props) => {
       undefined &&
     form.values.votes?.find((vote) => vote.timeSlotId === slot.id)?.comment !==
       '';
+
+  const comment = form.values.votes?.find(
+    (vote) => vote.timeSlotId === slot.id,
+  )?.comment;
 
   return (
     <div className="flex gap-2 items-center">
@@ -218,9 +222,9 @@ export const TimeSlotCard = ({ slot, form, data }: Props) => {
         <Menu.Dropdown>
           <Menu.Item
             leftSection={<IconMessageFilled size={16} />}
-            onClick={() => handleComment(slot.id)}
+            onClick={() => handleComment(slot.id, hasComment, comment)}
           >
-            Add Comment
+            {hasComment ? 'Edit' : 'Add'} Comment
           </Menu.Item>
           {hasComment && (
             <Menu.Item

@@ -13,7 +13,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const cookieOptions = `Path=/; HttpOnly; SameSite=Lax; ${
     env.NODE_ENV === 'production' ? 'Secure;' : ''
   } Max-Age=0`;
-  
+
   res.setHeader('Set-Cookie', [
     `${ORGANIZER_COOKIE}=; ${cookieOptions}`,
     `${ADMIN_COOKIE}=; ${cookieOptions}`,

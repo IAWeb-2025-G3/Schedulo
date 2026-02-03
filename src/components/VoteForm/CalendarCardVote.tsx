@@ -76,7 +76,7 @@ export const CalendarCardVote = ({ data }: Props) => {
           // No vote value means no vote cast
         })),
       ],
-      comment: comment.trim() ? [{ name, comment, userId }] : [],
+      comment: comment.trim() ? [{ comment, userId }] : [],
     };
 
     try {

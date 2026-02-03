@@ -27,7 +27,7 @@ const Page: NextPageWithLayout = () => {
     trpc.organizer.getCurrentOrganizer.useQuery();
 
   const utils = trpc.useUtils();
-  
+
   const verifyPassword = trpc.organizer.verifyPassword.useMutation();
 
   const updateOrganizer = trpc.organizer.updateOrganizer.useMutation({
@@ -159,12 +159,26 @@ const Page: NextPageWithLayout = () => {
 
             <Tooltip
               color="yellow"
-              disabled={currentPassword.trim() !== '' && newPassword.trim() !== '' && confirmPassword.trim() !== ''}
+              disabled={
+                currentPassword.trim() !== '' &&
+                newPassword.trim() !== '' &&
+                confirmPassword.trim() !== ''
+              }
               label={<Text>Please fill in all password fields!</Text>}
               openDelay={500}
               withArrow
             >
-              <Button type="submit" fullWidth loading={updateOrganizer.isPending} disabled={!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim() || updateOrganizer.isPending}>
+              <Button
+                type="submit"
+                fullWidth
+                loading={updateOrganizer.isPending}
+                disabled={
+                  !currentPassword.trim() ||
+                  !newPassword.trim() ||
+                  !confirmPassword.trim() ||
+                  updateOrganizer.isPending
+                }
+              >
                 Change Password
               </Button>
             </Tooltip>

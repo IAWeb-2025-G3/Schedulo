@@ -1,5 +1,8 @@
 import type * as trpcNext from '@trpc/server/adapters/next';
-import { verifyOrgCookie, verifyAdminCookie } from '~/server/auth/organizerSession';
+import {
+  verifyOrgCookie,
+  verifyAdminCookie,
+} from '~/server/auth/organizerSession';
 interface CreateContextOptions {
   organizerId: string | null;
   isAdmin: boolean;
@@ -35,5 +38,8 @@ export async function createContext(
   }
   const organizerId = await verifyOrgCookie(organizerToken);
 
-  return await createContextInner({ organizerId: organizerId?.orgId || null, isAdmin });
+  return await createContextInner({
+    organizerId: organizerId?.orgId || null,
+    isAdmin,
+  });
 }

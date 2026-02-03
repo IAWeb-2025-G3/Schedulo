@@ -76,16 +76,17 @@ const Page: NextPageWithLayout = () => {
               openDelay={500}
               withArrow
             >
-              <Button type="submit" loading={loading} fullWidth disabled={!password.trim() || loading}>
+              <Button
+                type="submit"
+                loading={loading}
+                fullWidth
+                disabled={!password.trim() || loading}
+              >
                 Continue
               </Button>
             </Tooltip>
 
-            <Button
-              variant="subtle"
-              fullWidth
-              onClick={() => router.push('/')}
-            >
+            <Button variant="subtle" fullWidth onClick={() => router.push('/')}>
               Cancel
             </Button>
           </Stack>

@@ -78,20 +78,27 @@ const Page: NextPageWithLayout = () => {
             <Tooltip
               color="yellow"
               disabled={username.trim() !== '' && password.trim() !== ''}
-              label={<Text>{!username.trim() ? 'Please enter your username!' : 'Please enter your password!'}</Text>}
+              label={
+                <Text>
+                  {!username.trim()
+                    ? 'Please enter your username!'
+                    : 'Please enter your password!'}
+                </Text>
+              }
               openDelay={500}
               withArrow
             >
-              <Button type="submit" loading={loading} fullWidth disabled={!username.trim() || !password.trim() || loading}>
+              <Button
+                type="submit"
+                loading={loading}
+                fullWidth
+                disabled={!username.trim() || !password.trim() || loading}
+              >
                 Sign in
               </Button>
             </Tooltip>
 
-            <Button
-              variant="subtle"
-              fullWidth
-              onClick={() => router.push('/')}
-            >
+            <Button variant="subtle" fullWidth onClick={() => router.push('/')}>
               Cancel
             </Button>
           </Stack>

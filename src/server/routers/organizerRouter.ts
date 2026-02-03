@@ -5,7 +5,6 @@ import crypto from 'crypto';
 import z from 'zod';
 import { env } from '~/server/env';
 import bycrpyt from 'bcryptjs';
-import { id } from 'zod/v4/locales';
 
 const ZodOrganizer = z.object({
   id: z.string().optional(),
@@ -145,7 +144,7 @@ export const organizerRouter = router({
       if (!isValid) {
         throw new Error('Invalid password');
       }
-      return {valid: true}
+      return { valid: true };
     }),
 
   deleteOrganizer: publicProcedure

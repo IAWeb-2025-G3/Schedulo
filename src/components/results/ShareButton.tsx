@@ -1,6 +1,6 @@
 import { ActionIcon, Button } from '@mantine/core';
 import { IconShare } from '@tabler/icons-react';
-import { Poll } from '~/pages/organize/poll';
+import { Poll } from '~/server/routers/schemas';
 
 type ShareButtonProps = {
   title?: string;
@@ -33,7 +33,7 @@ export const ShareButton = ({
 
   if (!canShare) return null; // or fallback UI
 
-  const disabled = !poll.active && poll.closedAt === undefined
+  const disabled = !poll.active && poll.closedAt === undefined;
 
   return (
     <>

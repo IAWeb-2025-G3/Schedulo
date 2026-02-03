@@ -1,10 +1,10 @@
 import { Card, Title, Space, Text, Button, ActionIcon } from '@mantine/core';
 import { Calendar, TimePicker } from '@mantine/dates';
 import { UseFormReturnType } from '@mantine/form';
-import { Poll } from '~/pages/organize/poll';
 import dayjs from 'dayjs';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { Poll } from '~/server/routers/schemas';
 
 dayjs.extend(customParseFormat);
 type Props = {

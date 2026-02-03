@@ -1,5 +1,5 @@
 import { Card, Title, Text } from '@mantine/core';
-import { Poll } from '~/pages/organize/poll';
+import { Poll } from '~/server/routers/schemas';
 
 type Props = {
   data: Poll;

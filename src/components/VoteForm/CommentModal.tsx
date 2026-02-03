@@ -5,11 +5,11 @@ import { useState } from 'react';
 
 type Props = {
   addComment: (comment: string) => void;
+  comment?: string;
 };
 
-export const CommentModal = ({ addComment }: Props) => {
-  const [value, setValue] = useState('');
-
+export const CommentModal = ({ addComment, comment }: Props) => {
+  const [value, setValue] = useState(comment || '');
   return (
     <div className="flex flex-col gap-4">
       <Textarea
