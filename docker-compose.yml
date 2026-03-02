@@ -1,11 +1,24 @@
 services:
   web:
-    build: .
+    build:
+      context: .
+      args:
+        ADMIN_PASSWORD: "dummy-build-value"
+        ORGANIZER_SESSION_SECRET: "dummy-build-secret-32-chars-minimum"
+
+    env_file:
+      - .env
+
+    environment:
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
+      ORGANIZER_SESSION_SECRET: ${ORGANIZER_SESSION_SECRET:?set ORGANIZER_SESSION_SECRET in .env}
+
+      NODE_ENV: ${NODE_ENV:-production}
+      DATA_DIR: /data
+
     ports:
       - "3000:3000"
-    environment:
-      NODE_ENV: production
-      DATA_DIR: /data
+
     volumes:
       - poll_data:/data
 
